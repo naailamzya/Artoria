@@ -36,10 +36,6 @@ class ChallengeController extends Controller
 
     public function create()
     {
-        if (Auth::user()->status !== 'curator') {
-            abort(403, 'Only curators can create challenges.');
-        }
-
         return view('challenges.create');
     }
 

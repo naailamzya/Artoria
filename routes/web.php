@@ -12,6 +12,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Admin\ModerationController;
 use Illuminate\Support\Facades\Route;
 
+// Public Routes (Guest)
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/search', [HomeController::class, 'search'])->name('search');
 Route::get('/category/{id}', [HomeController::class, 'filterByCategory'])->name('category.filter');
@@ -20,10 +21,11 @@ Route::get('/profile/{id}', [ProfileController::class, 'show'])->name('profile.s
 Route::get('/challenges', [ChallengeController::class, 'index'])->name('challenges.index');
 Route::get('/challenges/{id}', [ChallengeController::class, 'show'])->name('challenges.show');
 
+// Authenticated Routes (Member/Curator)
 Route::middleware(['auth', 'verified'])->group(function () {
-    
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+  
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -35,6 +37,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/artworks/{id}', [ArtworkController::class, 'destroy'])->name('artworks.destroy');
 
     Route::post('/artworks/{id}/like', [LikeController::class, 'toggle'])->name('artworks.like');
+
     Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
     Route::post('/artworks/{id}/favorite', [FavoriteController::class, 'toggle'])->name('artworks.favorite');
 
@@ -47,14 +50,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/challenges/{id}/submit', [ChallengeController::class, 'submit'])->name('challenges.submit');
 });
 
-Route::middleware(['auth', 'verified'])->group(function () {
+// Curator Routes
+Route::middleware(['auth', 'verified', 'curator'])->group(function () {
     
     Route::get('/challenges/create', [ChallengeController::class, 'create'])->name('challenges.create');
     Route::post('/challenges', [ChallengeController::class, 'store'])->name('challenges.store');
 });
 
-Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
-    
+// Admin Routes
+Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+
     Route::get('/dashboard', [ModerationController::class, 'index'])->name('dashboard');
 
     Route::get('/reports', [ModerationController::class, 'reports'])->name('reports');

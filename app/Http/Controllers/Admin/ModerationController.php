@@ -13,17 +13,6 @@ use Illuminate\Support\Facades\Storage;
 
 class ModerationController extends Controller
 {
-    // Middleware: hanya admin yang bisa akses
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            if (Auth::user()->status !== 'admin') {
-                abort(403, 'Unauthorized access.');
-            }
-            return $next($request);
-        });
-    }
-
     public function index()
     {
         $pendingReports = Report::where('status', 'pending')->count();
