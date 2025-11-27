@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -26,7 +28,9 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $validated = $request->validated();
+
+        $request->user()->fill($validated);
 
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;
@@ -34,7 +38,29 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        return Redirect::route('profile.edit')->with('success', 'Profile updated successfully! ✨');
+    }
+
+    /**
+     * Update profile picture
+     */
+    public function updatePicture(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'profile_picture' => ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+        ]);
+
+        $user = $request->user();
+
+        if ($user->profile_picture) {
+            Storage::disk('public')->delete($user->profile_picture);
+        }
+
+        $path = $request->file('profile_picture')->store('profile-pictures', 'public');
+
+        $user->update(['profile_picture' => $path]);
+
+        return back()->with('success', 'Profile picture updated! 📸');
     }
 
     /**
@@ -56,5 +82,27 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    }
+
+    /**
+     * Show public profile
+     */
+    public function show(User $user): View
+    {
+        $user->load(['artworks.category', 'artworks.tags']);
+
+        $artworks = $user->artworks()
+            ->with(['category', 'tags'])
+            ->latest()
+            ->paginate(24);
+
+        $stats = [
+            'artworks_count' => $user->artworks()->count(),
+            'total_likes' => $user->artworks()->sum('likes_count'),
+            'total_views' => $user->artworks()->sum('views_count'),
+            'favorites_count' => $user->favorites()->count(),
+        ];
+
+        return view('profile.show', compact('user', 'artworks', 'stats'));
     }
 }
