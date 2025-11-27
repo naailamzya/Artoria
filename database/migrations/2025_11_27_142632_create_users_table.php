@@ -22,8 +22,7 @@ return new class extends Migration
             $table->text('bio')->nullable()->after('profile_picture');
             
             $table->string('instagram_link')->nullable()->after('bio');
-            $table->string('behance_link')->nullable()->after('instagram_link');
-            $table->string('website_link')->nullable()->after('behance_link');
+            $table->string('github_link')->nullable()->after('instagram_link');
             
             $table->index('role');
             $table->index('status');
@@ -40,8 +39,7 @@ return new class extends Migration
                 'profile_picture',
                 'bio',
                 'instagram_link',
-                'behance_link',
-                'website_link'
+                'github_link',
             ]);
         });
     }
