@@ -207,3 +207,37 @@
     h2 { @apply text-2xl; }
     h3 { @apply text-xl; }
 }
+
+nav,
+body > nav {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 99999 !important;
+    width: 100% !important;
+}
+
+/* Glass effect */
+nav {
+    background: rgba(0, 0, 0, 0.7) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+}
+
+/* NO padding-top on body - kita pakai pt-20 di wrapper */
+body {
+    padding-top: 0 !important;
+}
+
+/* Content positioning */
+main {
+    position: relative;
+    z-index: 1;
+}
+
+/* Dropdown menus */
+nav div[x-show="open"] {
+    position: absolute !important;
+    z-index: 99998 !important;
+}

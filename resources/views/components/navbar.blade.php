@@ -1,10 +1,10 @@
-<nav class="sticky top-0 z-50 glass border-b border-white/10 backdrop-blur-2xl" 
+<nav class="fixed top-0 left-0 right-0 z-[99999] glass border-b border-white/10 backdrop-blur-2xl"
      x-data="{ mobileMenuOpen: false, profileMenuOpen: false }">
     <div class="container mx-auto px-4">
         <div class="flex items-center justify-between h-20">
             
+            {{-- Logo & Main Nav --}}
             <div class="flex items-center space-x-8">
-
                 <a href="{{ route('home') }}" class="flex items-center space-x-3 group">
                     <div class="w-10 h-10 bg-gradient-to-br from-artoria-500 to-pink-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -31,8 +31,10 @@
                 </div>
             </div>
 
+            {{-- Right Side Actions --}}
             <div class="flex items-center space-x-4">
                 
+                {{-- Search --}}
                 <form action="{{ route('artworks.search') }}" method="GET" class="hidden md:block">
                     <div class="relative">
                         <input type="text" 
@@ -47,6 +49,7 @@
                 </form>
 
                 @auth
+                    {{-- Upload Button (for members/curators only) --}}
                     @if(auth()->user()->isMember() || auth()->user()->isCurator())
                         <a href="{{ route('artworks.create') }}" 
                            class="hidden md:flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-artoria-500 to-artoria-600 text-white font-semibold rounded-xl hover:from-artoria-600 hover:to-artoria-700 transition-all duration-300 hover:scale-105 hover:shadow-neon-red">
@@ -57,6 +60,7 @@
                         </a>
                     @endif
 
+                    {{-- User Profile Dropdown --}}
                     <div class="relative" x-data="{ open: false }" @click.away="open = false">
                         <button @click="open = !open" 
                                 class="flex items-center space-x-3 p-2 rounded-xl hover:bg-white/5 transition-all duration-300">
@@ -74,6 +78,7 @@
                             </svg>
                         </button>
 
+                        {{-- Dropdown Menu --}}
                         <div x-show="open" 
                              x-transition:enter="transition ease-out duration-200"
                              x-transition:enter-start="opacity-0 scale-95"
@@ -176,6 +181,7 @@
                         </div>
                     </div>
                 @else
+                    {{-- Guest Actions --}}
                     <a href="{{ route('login') }}" 
                        class="px-6 py-2 text-gray-300 font-semibold hover:text-white transition-all duration-300">
                         Login
@@ -186,6 +192,7 @@
                     </a>
                 @endauth
 
+                {{-- Mobile Menu Toggle --}}
                 <button @click="mobileMenuOpen = !mobileMenuOpen" 
                         class="lg:hidden p-2 rounded-xl hover:bg-white/5 transition-all duration-300">
                     <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -199,7 +206,7 @@
         </div>
     </div>
 
-    <!-- Mobile Menu -->
+    {{-- Mobile Menu --}}
     <div x-show="mobileMenuOpen" 
          x-transition:enter="transition ease-out duration-200"
          x-transition:enter-start="opacity-0 -translate-y-4"
@@ -210,7 +217,6 @@
          class="lg:hidden pb-4"
          style="display: none;">
         
-        <!-- Mobile Search -->
         <form action="{{ route('artworks.search') }}" method="GET" class="px-4 py-2">
             <input type="text" 
                    name="q" 
@@ -218,7 +224,6 @@
                    class="w-full px-4 py-2 glass rounded-xl text-sm text-white placeholder-gray-400 border-white/10 focus:border-artoria-500 focus:ring-2 focus:ring-artoria-500/50 transition-all duration-300">
         </form>
 
-        <!-- Mobile Navigation Links -->
         <div class="space-y-1 px-4">
             <a href="{{ route('home') }}" 
                class="block px-4 py-2 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 transition-all duration-300">
