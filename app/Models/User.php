@@ -138,4 +138,5 @@ class User extends Authenticatable
             ? asset('storage/' . $this->profile_picture)
             : asset('images/default-avatar.png');
     }
+
 }

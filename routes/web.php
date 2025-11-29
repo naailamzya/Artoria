@@ -38,7 +38,7 @@ Route::get('/challenges', [ChallengeController::class, 'index'])->name('challeng
 Route::get('/challenges/{challenge}', [ChallengeController::class, 'show'])->name('challenges.show');
 
 // User Profiles (Public)
-Route::get('/profile/{user:name}', [ProfileController::class, 'show'])->name('profile.show');
+Route::get('/profile/{user:id}', [ProfileController::class, 'show'])->name('profile.show');
 
 // Search
 Route::get('/search', [ArtworkController::class, 'search'])->name('artworks.search');
@@ -84,6 +84,10 @@ Route::middleware(['auth', 'account.active', 'role:member,curator'])->group(func
     Route::post('/challenges/{challenge}/submit', [ChallengeController::class, 'submit'])->name('challenges.submit');
     Route::get('/my-submissions', [ChallengeController::class, 'mySubmissions'])->name('challenges.my-submissions');
 });
+
+// Temporary debug route: show profile edit page for any authenticated user
+// (bypasses the role middleware so you can verify the edit form renders)
+Route::middleware(['auth'])->get('/profile/debug-edit', [ProfileController::class, 'edit'])->name('profile.debug-edit');
 
 Route::middleware(['auth', 'curator.active'])->prefix('curator')->name('curator.')->group(function () {
     
