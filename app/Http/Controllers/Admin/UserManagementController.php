@@ -5,17 +5,20 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class UserManagementController extends Controller
 {
-    use AuthorizesRequests;
-
     public function index(Request $request)
     {
-        $this->authorize('viewAny', User::class);
+        $query = User::query()->withCount('artworks');
 
-        $query = User::query();
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
 
         if ($request->filled('role')) {
             $query->where('role', $request->role);
@@ -25,31 +28,23 @@ class UserManagementController extends Controller
             $query->where('status', $request->status);
         }
 
-        if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', "%{$request->search}%")
-                  ->orWhere('email', 'like', "%{$request->search}%")
-                  ->orWhere('display_name', 'like', "%{$request->search}%");
-            });
-        }
-
-        $users = $query->withCount('artworks')
-            ->latest()
-            ->paginate(20);
+        $users = $query->latest()->paginate(20);
 
         return view('admin.users.index', compact('users'));
     }
 
     public function show(User $user)
     {
-        $this->authorize('view', $user);
+        // ✅ Load artworks WITHOUT withCount (likes_count & views_count sudah di column)
+        $user->load(['artworks' => function($query) {
+            $query->latest()->take(6);
+        }]);
 
-        $user->load(['artworks.category', 'challenges']);
-
+        // Calculate stats
         $stats = [
             'artworks_count' => $user->artworks()->count(),
-            'total_likes' => $user->artworks()->sum('likes_count'),
-            'total_views' => $user->artworks()->sum('views_count'),
+            'likes_received' => $user->artworks()->sum('likes_count'), // ✅ Direct sum dari column
+            'profile_views' => $user->profile_views ?? 0,
             'comments_count' => $user->comments()->count(),
             'challenges_created' => $user->challenges()->count(),
             'challenge_submissions' => $user->challengeEntries()->count(),
@@ -58,85 +53,68 @@ class UserManagementController extends Controller
         return view('admin.users.show', compact('user', 'stats'));
     }
 
-    public function destroy(User $user)
-    {
-        $this->authorize('delete', $user);
-
-        $user->delete();
-
-        return redirect()->route('admin.users.index')
-            ->with('success', 'User deleted successfully.');
-    }
-
-    public function suspend(User $user)
-    {
-        $this->authorize('manageStatus', $user);
-
-        if ($user->id === auth()->id()) {
-            return back()->with('error', 'You cannot suspend your own account.');
-        }
-
-        $user->update(['status' => 'suspended']);
-
-        return back()->with('success', 'User suspended successfully.');
-    }
-
-    public function activate(User $user)
-    {
-        $this->authorize('manageStatus', $user);
-
-        $user->update(['status' => 'active']);
-
-        return back()->with('success', 'User activated successfully. ✅');
-    }
-
     public function pendingCurators()
     {
-        $this->authorize('approveCurator', User::class);
-
         $pendingCurators = User::where('role', 'curator')
             ->where('status', 'pending')
             ->withCount('artworks')
             ->latest()
-            ->paginate(20);
+            ->get();
 
-        return view('admin.curators.pending', compact('pendingCurators'));
+        $approvedCount = User::where('role', 'curator')->where('status', 'active')->count();
+        $rejectedCount = User::where('role', 'curator')->where('status', 'rejected')->count();
+
+        return view('admin.curators.pending', compact('pendingCurators', 'approvedCount', 'rejectedCount'));
     }
 
     public function approveCurator(User $user)
     {
-        $this->authorize('approveCurator', User::class);
-
-        if ($user->role !== 'curator') {
-            return back()->with('error', 'User is not a curator.');
-        }
-
-        if ($user->status !== 'pending') {
-            return back()->with('error', 'Curator is not pending approval.');
+        if ($user->role !== 'curator' || $user->status !== 'pending') {
+            return redirect()->back()->with('error', 'Invalid curator application.');
         }
 
         $user->update(['status' => 'active']);
 
-        return back()->with('success', 'Curator approved successfully!');
+        return redirect()->back()->with('success', "Curator {$user->name} has been approved!");
     }
 
     public function rejectCurator(User $user)
     {
-        $this->authorize('approveCurator', User::class);
-
-        if ($user->role !== 'curator') {
-            return back()->with('error', 'User is not a curator.');
+        if ($user->role !== 'curator' || $user->status !== 'pending') {
+            return redirect()->back()->with('error', 'Invalid curator application.');
         }
 
-        if ($user->status !== 'pending') {
-            return back()->with('error', 'Curator is not pending approval.');
+        $user->update(['status' => 'rejected']);
+
+        return redirect()->back()->with('success', "Curator application for {$user->name} has been rejected.");
+    }
+
+    public function suspend(User $user)
+    {
+        if ($user->id === auth()->id()) {
+            return redirect()->back()->with('error', 'You cannot suspend yourself.');
         }
 
-        $user->update([
-            'role' => 'member',
-            'status' => 'active',
-        ]);
+        $user->update(['status' => 'suspended']);
 
-        return back()->with('success', 'Curator application rejected.');
+        return redirect()->back()->with('success', "User {$user->name} has been suspended.");
+    }
+
+    public function activate(User $user)
+    {
+        $user->update(['status' => 'active']);
+
+        return redirect()->back()->with('success', "User {$user->name} has been activated.");
+    }
+
+    public function destroy(User $user)
+    {
+        if ($user->id === auth()->id()) {
+            return redirect()->back()->with('error', 'You cannot delete yourself.');
+        }
+
+        $user->delete();
+
+        return redirect()->route('admin.users.index')->with('success', "User {$user->name} has been deleted.");
     }
 }

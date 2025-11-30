@@ -49,16 +49,17 @@
                 </form>
 
                 @auth
-                    {{-- Upload Button (for members/curators only) --}}
-                    @if(auth()->user()->isMember() || auth()->user()->isCurator())
-                        <a href="{{ route('artworks.create') }}" 
-                           class="hidden md:flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-artoria-500 to-artoria-600 text-white font-semibold rounded-xl hover:from-artoria-600 hover:to-artoria-700 transition-all duration-300 hover:scale-105 hover:shadow-neon-red">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                            </svg>
-                            <span>Upload</span>
-                        </a>
-                    @endif
+{{-- Upload Button (active member/curator only) --}}
+@if( (auth()->user()->isMember() || auth()->user()->isCurator()) && auth()->user()->isActive() )
+    <a href="{{ route('artworks.create') }}" 
+       class="hidden md:flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-artoria-500 to-artoria-600 text-white font-semibold rounded-xl hover:from-artoria-600 hover:to-artoria-700 transition-all duration-300 hover:scale-105 hover:shadow-neon-red">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        <span>Upload</span>
+    </a>
+@endif
+
 
                     {{-- User Profile Dropdown --}}
                     <div class="relative" x-data="{ open: false }" @click.away="open = false">
@@ -133,7 +134,7 @@
                                     <span class="text-sm font-medium">My Profile</span>
                                 </a>
 
-                                @if(auth()->user()->isMember() || auth()->user()->isCurator())
+                                @if(auth()->user()->isMember())
                                     <a href="{{ route('artworks.mine') }}" 
                                        class="flex items-center space-x-3 px-4 py-2 text-gray-300 hover:bg-white/5 hover:text-white transition-all duration-300">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -239,7 +240,9 @@
             </a>
 
             @auth
-                @if(auth()->user()->isMember() || auth()->user()->isCurator())
+                @if(auth()->user()->isActive() &&
+                (auth()->user()->isMember() || auth()->user()->isCurator())
+                )
                     <a href="{{ route('artworks.create') }}" 
                        class="block px-4 py-2 bg-gradient-to-r from-artoria-500 to-artoria-600 text-white font-semibold rounded-xl text-center hover:from-artoria-600 hover:to-artoria-700 transition-all duration-300">
                         Upload Artwork

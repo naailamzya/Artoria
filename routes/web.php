@@ -74,6 +74,40 @@ Route::middleware(['auth', 'account.active', 'role:member,curator'])->group(func
     Route::get('/my-submissions', [ChallengeController::class, 'mySubmissions'])->name('challenges.my-submissions');
 });
 
+// ✅ CURATOR PENDING PAGE (KHUSUS UNTUK CURATOR PENDING)
+// Harus di atas curator.active middleware agar tidak tertimpa
+Route::middleware(['auth'])->group(function () {
+    Route::get('/curator/pending', function () {
+        $user = auth()->user();
+        
+        // Only curators can access this page
+        if ($user->role !== 'curator') {
+            abort(403, 'Unauthorized - Only curators can access this page.');
+        }
+        
+        // If suspended, logout immediately
+        if ($user->status === 'suspended') {
+            auth()->logout();
+            return redirect()->route('login')->with('error', 'Your account has been suspended.');
+        }
+        
+        // If already active, redirect to curator dashboard
+        if ($user->status === 'active') {
+            return redirect()->route('curator.dashboard');
+        }
+        
+        // If rejected, redirect to member dashboard
+        if ($user->status === 'rejected') {
+            return redirect()->route('dashboard')
+                ->with('error', 'Your curator application was rejected.');
+        }
+        
+        // Show pending page for pending curators
+        return view('curator.pending');
+    })->name('curator.pending');
+});
+
+// ✅ CURATOR ACTIVE ROUTES (HANYA UNTUK CURATOR ACTIVE)
 Route::middleware(['auth', 'curator.active'])->prefix('curator')->name('curator.')->group(function () {
 
     Route::get('/dashboard', [CuratorDashboardController::class, 'index'])->name('dashboard');
@@ -85,38 +119,33 @@ Route::middleware(['auth', 'curator.active'])->prefix('curator')->name('curator.
     Route::delete('/challenges/{challenge}/remove-winner/{entry}', [ChallengeManagementController::class, 'removeWinner'])->name('challenges.remove-winner');
 });
 
-Route::middleware(['auth', 'role:curator'])->group(function () {
-    Route::get('/curator/pending', function () {
-        if (auth()->user()->isActive()) {
-            return redirect()->route('curator.dashboard');
-        }
-        return view('curator.pending');
-    })->name('curator.pending');
-});
-
-
+// ✅ ADMIN ROUTES (HANYA UNTUK ADMIN)
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
+    // User Management
     Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
     Route::get('/users/{user}', [UserManagementController::class, 'show'])->name('users.show');
     Route::delete('/users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
     Route::post('/users/{user}/suspend', [UserManagementController::class, 'suspend'])->name('users.suspend');
     Route::post('/users/{user}/activate', [UserManagementController::class, 'activate'])->name('users.activate');
 
+    // Curator Management
     Route::get('/curators/pending', [UserManagementController::class, 'pendingCurators'])->name('curators.pending');
     Route::post('/curators/{user}/approve', [UserManagementController::class, 'approveCurator'])->name('curators.approve');
     Route::post('/curators/{user}/reject', [UserManagementController::class, 'rejectCurator'])->name('curators.reject');
 
-
+    // Category Management
     Route::resource('categories', CategoryManagementController::class);
 
+    // Moderation
     Route::get('/moderation', [ModerationController::class, 'index'])->name('moderation.index');
     Route::get('/reports/{report}', [ModerationController::class, 'show'])->name('reports.show');
     Route::post('/reports/{report}/dismiss', [ModerationController::class, 'dismiss'])->name('reports.dismiss');
     Route::post('/reports/{report}/take-down', [ModerationController::class, 'takeDown'])->name('reports.take-down');
 
+    // Statistics
     Route::get('/statistics', [AdminDashboardController::class, 'statistics'])->name('statistics');
 });
 

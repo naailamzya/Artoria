@@ -21,12 +21,16 @@ class CheckAccountStatus
             return redirect()->route('login');
         }
 
+        // Suspended users harus logout
         if ($user->status === 'suspended') {
             auth()->logout();
             return redirect()->route('login')
-                ->with('error', 'Your account has been suspended. Please contact support.');
+                ->withErrors(['email' => 'Your account has been suspended. Please contact support.']);
         }
 
+        // ⚠️ PENTING: Curator pending BOLEH lewat (akan di-redirect di route/controller)
+        // Jangan block di sini, biar bisa akses curator.pending page
+        
         return $next($request);
     }
 }

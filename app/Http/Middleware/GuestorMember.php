@@ -10,11 +10,11 @@ class GuestOrMember
 {
     /**
      * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * Allow guest OR authenticated member to access
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // No restriction, anyone can access
         return $next($request);
     }
 }

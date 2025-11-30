@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -41,15 +43,35 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
+        // 1. Cari user berdasarkan email
+        $user = User::where('email', $this->input('email'))->first();
 
+        // 2. Validasi kredensial (email + password)
+        if (!$user || !Hash::check($this->input('password'), $user->password)) {
+            RateLimiter::hit($this->throttleKey());
+            
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => __('auth.failed'),
             ]);
         }
 
+        // 3. Cek status akun SEBELUM login
+        
+        // Cek: Akun suspended (JANGAN login, langsung throw error)
+        if ($user->status === 'suspended') {
+            RateLimiter::hit($this->throttleKey());
+            
+            throw ValidationException::withMessages([
+                'email' => 'Your account has been suspended. Please contact support for assistance.',
+            ]);
+        }
+
+        // 4. LOGIN dulu untuk SEMUA user (termasuk curator pending)
+        Auth::login($user, $this->boolean('remember'));
         RateLimiter::clear($this->throttleKey());
+
+        // 5. Curator pending akan di-handle di AuthenticatedSessionController
+        // Jadi di sini kita TIDAK throw error lagi
     }
 
     /**
@@ -59,7 +81,7 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
 

@@ -84,7 +84,7 @@
                             <svg class="w-5 h-5 mr-3 text-artoria-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            <span>Our admin team will review your profile and artwork portfolio</span>
+                            <span>Our admin team will review your brand information and portfolio</span>
                         </li>
                         <li class="flex items-start">
                             <svg class="w-5 h-5 mr-3 text-artoria-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -102,44 +102,43 @@
                             <svg class="w-5 h-5 mr-3 text-artoria-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            <span>If approved, you'll gain access to the Curator Dashboard</span>
+                            <span>If approved, you'll gain access to the Curator Dashboard and can create challenges</span>
                         </li>
                     </ul>
                 </div>
 
-                <!-- Meanwhile Section -->
+                <!-- Meanwhile Section - HANYA Edit Profile -->
                 <div class="mt-8 pt-8 border-t border-white/10">
                     <h3 class="text-lg font-bold text-white mb-4">Meanwhile, you can:</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <a href="{{ route('artworks.create') }}" class="glass-hover rounded-xl p-4 transition-all duration-300">
-                            <svg class="w-8 h-8 text-artoria-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                            </svg>
-                            <p class="text-white font-semibold text-sm">Upload Art</p>
-                        </a>
-                        <a href="{{ route('challenges.index') }}" class="glass-hover rounded-xl p-4 transition-all duration-300">
-                            <svg class="w-8 h-8 text-artoria-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
-                            </svg>
-                            <p class="text-white font-semibold text-sm">Join Challenges</p>
-                        </a>
-                        <a href="{{ route('profile.edit') }}" class="glass-hover rounded-xl p-4 transition-all duration-300">
-                            <svg class="w-8 h-8 text-artoria-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="grid grid-cols-1 gap-4 max-w-xs mx-auto">
+                        <a href="{{ route('profile.edit') }}" class="glass-hover rounded-xl p-6 transition-all duration-300 hover:scale-105">
+                            <svg class="w-10 h-10 text-artoria-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                             </svg>
-                            <p class="text-white font-semibold text-sm">Edit Profile</p>
+                            <p class="text-white font-semibold">Edit Profile</p>
+                            <p class="text-sm text-gray-400 mt-1">Update your information</p>
                         </a>
                     </div>
                 </div>
 
-                <!-- Back to Dashboard -->
-                <div class="mt-8">
-                    <a href="{{ route('dashboard') }}" class="btn-secondary inline-flex items-center space-x-2">
+                <!-- Action Buttons -->
+                <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="{{ route('dashboard') }}" class="btn-secondary inline-flex items-center justify-center space-x-2 px-8 py-4">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                         </svg>
                         <span>Back to Dashboard</span>
                     </a>
+                </div>
+
+                <!-- Contact Support -->
+                <div class="mt-6">
+                    <p class="text-gray-500 text-sm">
+                        Questions about your application? 
+                        <a href="mailto:support@artoria.com" class="text-artoria-400 hover:text-artoria-300 font-semibold transition-colors underline decoration-dotted">
+                            Contact Support
+                        </a>
+                    </p>
                 </div>
             </div>
         </div>
@@ -151,6 +150,11 @@
     @keyframes spin-slow {
         from { transform: rotate(0deg); }
         to { transform: rotate(360deg); }
+    }
+    
+    @keyframes pulse-slow {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
     }
     
     @keyframes orbit {
@@ -167,12 +171,27 @@
         animation: spin-slow 3s linear infinite;
     }
     
+    .animate-pulse-slow {
+        animation: pulse-slow 2s ease-in-out infinite;
+    }
+    
     .animate-orbit {
         animation: orbit 4s linear infinite;
     }
     
     .animate-orbit-reverse {
         animation: orbit-reverse 5s linear infinite;
+    }
+
+    .glass-hover {
+        background: rgba(17, 24, 39, 0.5);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .glass-hover:hover {
+        background: rgba(17, 24, 39, 0.7);
+        border-color: rgba(139, 92, 246, 0.3);
     }
 </style>
 @endpush
