@@ -5,10 +5,9 @@
 @section('content')
 <div class="py-12">
     <div class="container mx-auto px-4">
-        <!-- Header -->
         <div class="mb-8">
             <h1 class="text-4xl md:text-5xl font-display font-bold text-white mb-2">
-                Moderation Queue 🛡️
+                Moderation Queue
             </h1>
             <p class="text-gray-400">Review reported content and take action</p>
         </div>
@@ -19,7 +18,6 @@
                 Back to Dashboard
             </a>
 
-        <!-- Stats -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
             <div class="stat-card border-2 border-yellow-500/30">
                 <div class="text-3xl font-bold gradient-text mb-1">{{ $stats['pending_count'] }}</div>
@@ -35,31 +33,28 @@
             </div>
         </div>
 
-        <!-- Filter Tabs -->
         <div class="flex justify-center mb-8">
             <div class="glass rounded-2xl p-2 inline-flex space-x-2">
                 <a href="{{ route('admin.moderation.index', ['filter' => 'pending']) }}" 
                    class="px-6 py-3 rounded-xl font-semibold transition-all duration-300 {{ $filter === 'pending' ? 'bg-gradient-to-r from-artoria-500 to-artoria-600 text-white shadow-neon-red' : 'text-gray-300 hover:text-white hover:bg-white/5' }}">
-                    ⚠️ Pending ({{ $stats['pending_count'] }})
+                    Pending ({{ $stats['pending_count'] }})
                 </a>
                 <a href="{{ route('admin.moderation.index', ['filter' => 'reviewed']) }}" 
                    class="px-6 py-3 rounded-xl font-semibold transition-all duration-300 {{ $filter === 'reviewed' ? 'bg-gradient-to-r from-artoria-500 to-artoria-600 text-white shadow-neon-red' : 'text-gray-300 hover:text-white hover:bg-white/5' }}">
-                    ✅ Reviewed
+                    Reviewed
                 </a>
                 <a href="{{ route('admin.moderation.index', ['filter' => 'dismissed']) }}" 
                    class="px-6 py-3 rounded-xl font-semibold transition-all duration-300 {{ $filter === 'dismissed' ? 'bg-gradient-to-r from-artoria-500 to-artoria-600 text-white shadow-neon-red' : 'text-gray-300 hover:text-white hover:bg-white/5' }}">
-                    🚫 Dismissed
+                    Dismissed
                 </a>
             </div>
         </div>
 
-        <!-- Reports List -->
         @if($reports->count() > 0)
             <div class="space-y-6 mb-8">
                 @foreach($reports as $report)
                     <div class="glass rounded-2xl p-6 border-2 {{ $report->isPending() ? 'border-yellow-500/30' : 'border-white/10' }}">
                         <div class="flex flex-col lg:flex-row gap-6">
-                            <!-- Report Info -->
                             <div class="flex-1 space-y-4">
                                 <div class="flex items-start justify-between">
                                     <div>
@@ -82,13 +77,11 @@
                                     </div>
                                 </div>
 
-                                <!-- Reason -->
                                 <div class="glass rounded-xl p-4">
                                     <p class="text-xs text-gray-400 mb-1">Reason:</p>
                                     <p class="text-white">{{ $report->reason }}</p>
                                 </div>
 
-                                <!-- Reported Content Preview -->
                                 @if($report->reportable)
                                     <div class="glass rounded-xl p-4">
                                         <p class="text-xs text-gray-400 mb-2">Reported Content:</p>
@@ -111,7 +104,7 @@
                                     </div>
                                 @else
                                     <div class="glass rounded-xl p-4 border-2 border-red-500/30">
-                                        <p class="text-red-400 text-sm">⚠️ Content has been deleted</p>
+                                        <p class="text-red-400 text-sm">Content has been deleted</p>
                                     </div>
                                 @endif
 

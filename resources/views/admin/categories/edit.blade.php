@@ -5,7 +5,7 @@
 @section('content')
 <div class="py-12">
     <div class="container mx-auto px-4 max-w-2xl">
-        <!-- Header -->
+
         <div class="mb-8">
             <h1 class="text-4xl md:text-5xl font-display font-bold text-white mb-2">
                 Edit Category
@@ -13,12 +13,10 @@
             <p class="text-gray-400">Update category details</p>
         </div>
 
-        <!-- Form -->
         <form action="{{ route('admin.categories.update', $category) }}" method="POST" class="glass rounded-2xl p-8 space-y-6">
             @csrf
             @method('PUT')
 
-            <!-- Name -->
             <x-input 
                 type="text"
                 name="name"
@@ -29,7 +27,6 @@
                 required
             />
 
-            <!-- Description -->
             <x-textarea 
                 name="description"
                 label="Description"
@@ -38,7 +35,6 @@
                 :error="$errors->first('description')"
             >{{ old('description', $category->description) }}</x-textarea>
 
-            <!-- Stats -->
             <div class="glass rounded-xl p-4 border-2 border-artoria-500/30">
                 <p class="text-sm text-gray-400 mb-2">Current Stats:</p>
                 <div class="flex items-center space-x-4 text-white">
@@ -51,7 +47,6 @@
                 </div>
             </div>
 
-            <!-- Actions -->
             <div class="flex gap-4">
                 <button type="submit" class="flex-1 btn-primary py-3">
                     Save Changes

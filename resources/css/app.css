@@ -218,26 +218,87 @@ body > nav {
     width: 100% !important;
 }
 
-/* Glass effect */
 nav {
     background: rgba(0, 0, 0, 0.7) !important;
     backdrop-filter: blur(24px) !important;
     -webkit-backdrop-filter: blur(24px) !important;
 }
 
-/* NO padding-top on body - kita pakai pt-20 di wrapper */
 body {
     padding-top: 0 !important;
 }
 
-/* Content positioning */
 main {
     position: relative;
     z-index: 1;
 }
 
-/* Dropdown menus */
-nav div[x-show="open"] {
-    position: absolute !important;
-    z-index: 99998 !important;
+.dropdown-menu {
+    @apply glass bg-black/80 backdrop-blur-lg border border-white/10 rounded-xl shadow-xl;
+    min-width: 100%;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.dropdown-item {
+    @apply px-4 py-2 text-gray-200 hover:bg-artoria-500/20 hover:text-white transition-all duration-200;
+}
+
+.dropdown-item.active {
+    @apply bg-artoria-500/30 text-white border-l-4 border-artoria-500;
+}
+
+.dropdown-item:focus,
+.dropdown-item:hover {
+    @apply bg-artoria-500/20 text-white;
+}
+
+.dropdown-toggle {
+    @apply input-artoria !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23d1d5db' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m1 4 7 7 7-7'/%3e%3c/svg%3e") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 0.75rem center !important;
+    background-size: 16px 12px !important;
+    padding-right: 2.5rem !important;
+}
+
+.dropdown-toggle:focus {
+    @apply ring-2 ring-artoria-500/50 !important;
+}
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.dropdown-menu::-webkit-scrollbar-track {
+    @apply bg-gray-900/50 rounded-full;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb {
+    @apply bg-artoria-500/50 rounded-full hover:bg-artoria-500;
+}
+
+select.input-artoria {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23d1d5db' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m1 4 7 7 7-7'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+    padding-right: 2.5rem !important;
+}
+
+select.input-artoria option {
+    @apply bg-gray-900 text-gray-200 hover:bg-artoria-500 hover:text-white;
+}
+
+select.input-artoria {
+    color-scheme: dark;
+}
+
+select.input-artoria {
+    -moz-appearance: none;
 }

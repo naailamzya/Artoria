@@ -123,7 +123,7 @@
 
                 <!-- Action Buttons -->
                 <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="{{ route('dashboard') }}" class="btn-secondary inline-flex items-center justify-center space-x-2 px-8 py-4">
+                    <a href="{{ route('home') }}" class="btn-secondary inline-flex items-center justify-center space-x-2 px-8 py-4">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                         </svg>

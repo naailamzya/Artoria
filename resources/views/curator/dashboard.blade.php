@@ -8,7 +8,7 @@
         <!-- Header -->
         <div class="mb-8">
             <h1 class="text-4xl md:text-5xl font-display font-bold text-white mb-2">
-                Curator Dashboard <span class="gradient-text">🎯</span>
+                Curator Dashboard <span class="gradient-text"></span>
             </h1>
             <p class="text-gray-400">Manage your challenges and review submissions</p>
         </div>

@@ -5,19 +5,16 @@
 @section('content')
 <div class="py-12">
     <div class="container mx-auto px-4 max-w-4xl">
-        <!-- Header -->
         <div class="mb-8">
             <h1 class="text-4xl md:text-5xl font-display font-bold text-white mb-2">
-                Create New Challenge 🎯
+                Create New Challenge 
             </h1>
             <p class="text-gray-400">Launch an exciting art competition for the community</p>
         </div>
 
-        <!-- Form -->
         <form action="{{ route('curator.challenges.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
             @csrf
 
-            <!-- Banner Image -->
             <div class="glass rounded-2xl p-8">
                 <h2 class="text-xl font-bold text-white mb-6 flex items-center">
                     <svg class="w-6 h-6 mr-2 text-artoria-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,7 +34,6 @@
                 </p>
             </div>
 
-            <!-- Challenge Details -->
             <div class="glass rounded-2xl p-8 space-y-6">
                 <h2 class="text-xl font-bold text-white mb-6 flex items-center">
                     <svg class="w-6 h-6 mr-2 text-artoria-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -46,7 +42,6 @@
                     Challenge Details
                 </h2>
 
-                <!-- Title -->
                 <x-input 
                     type="text"
                     name="title"
@@ -57,7 +52,6 @@
                     required
                 />
 
-                <!-- Description -->
                 <x-textarea 
                     name="description"
                     label="Description *"
@@ -157,7 +151,7 @@
                     </svg>
                     <span class="text-lg font-semibold">Create Challenge</span>
                 </button>
-                <a href="{{ route('curator.dashboard') }}" class="btn-secondary flex-1 flex items-center justify-center space-x-2 py-4">
+                <a href="{{ route('curator.challenges.mine') }}" class="btn-secondary flex-1 flex items-center justify-center space-x-2 py-4">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>

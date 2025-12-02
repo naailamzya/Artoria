@@ -21,6 +21,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'account.active' => CheckAccountStatus::class,
             'guest.or.member' => GuestOrMember::class,
         ]);
+
+        $middleware->redirectGuestsTo('/dashboard');
+        $middleware->redirectUsersTo('/dashboard');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

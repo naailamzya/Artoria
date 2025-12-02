@@ -9,7 +9,7 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable; 
 
     protected $fillable = [
         'name',
@@ -22,6 +22,9 @@ class User extends Authenticatable
         'bio',
         'instagram_link',
         'github_link',
+        'brand_name',
+        'portfolio_url',
+        'portofolio_url',
     ];
 
     protected $hidden = [
@@ -29,14 +32,12 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
 
+    // RELATIONS
     public function artworks()
     {
         return $this->hasMany(Artwork::class);
@@ -87,24 +88,112 @@ class User extends Authenticatable
         return $this->role === 'curator';
     }
 
+    public function isActive(): bool
+    {
+        if (!isset($this->status) || empty($this->status) || is_null($this->status)) {
+            return true;
+        }
+        
+        return $this->status === 'active';
+    }
+
     public function isPending(): bool
     {
         return $this->status === 'pending';
     }
 
-    public function isActive(): bool
+    public function isBanned(): bool
     {
-        return $this->status === 'active';
+        return $this->status === 'banned';
     }
 
-    public function hasLiked(Artwork $artwork): bool
+    public function isSuspended(): bool
     {
-        return $this->likes()->where('artwork_id', $artwork->id)->exists();
+        return $this->status === 'suspended';
     }
 
-    public function hasFavorited(Artwork $artwork): bool
+    public function hasPendingCuratorApplication(): bool
     {
-        return $this->favorites()->where('artwork_id', $artwork->id)->exists();
+        return $this->isMember() && 
+               $this->status === 'pending' &&
+               ($this->brand_name || $this->getPortfolioUrlAttribute());
+    }
+
+    public function hasRejectedCuratorApplication(): bool
+    {
+        return $this->isMember() && 
+               ($this->brand_name || $this->getPortfolioUrlAttribute()) &&
+               $this->status === 'active' &&
+               !$this->isCurator();
+    }
+
+    public function hasActiveCuratorApplication(): bool
+    {
+        return $this->isMember() && 
+               $this->status === 'pending' &&
+               ($this->brand_name || $this->getPortfolioUrlAttribute());
+    }
+
+    public function canApplyAsCurator(): bool
+    {
+        return $this->isMember() && 
+               !$this->brand_name && 
+               !$this->getPortfolioUrlAttribute() &&
+               $this->artworks()->count() >= 3;
+    }
+
+    public function markAsRejectedCurator(): void
+    {
+        if ($this->isMember() && $this->status === 'pending') {
+            $this->update(['status' => 'active']);
+            session(['curator_rejected_user_id' => $this->id]);
+        }
+    }
+
+    public function approveAsCurator(): void
+    {
+        if ($this->isMember() && $this->status === 'pending') {
+            $this->update([
+                'role' => 'curator',
+                'status' => 'active'
+            ]);
+        }
+    }
+
+    public function getDisplayNameAttribute($value)
+    {
+        return $value ?? $this->name;
+    }
+
+    public function getProfilePictureUrlAttribute()
+    {
+        return $this->profile_picture 
+            ? asset('storage/' . $this->profile_picture)
+            : asset('images/default-avatar.png');
+    }
+
+    public function getPortfolioUrlAttribute()
+    {
+        if (isset($this->attributes['portfolio_url'])) {
+            return $this->attributes['portfolio_url'];
+        }
+        
+        if (isset($this->attributes['portofolio_url'])) {
+            return $this->attributes['portofolio_url'];
+        }
+        
+        return null;
+    }
+
+    public function setPortfolioUrlAttribute($value)
+    {
+        if (isset($this->attributes['portfolio_url'])) {
+            $this->attributes['portfolio_url'] = $value;
+        } elseif (isset($this->attributes['portofolio_url'])) {
+            $this->attributes['portofolio_url'] = $value;
+        } else {
+            $this->attributes['portfolio_url'] = $value;
+        }
     }
 
     public function scopeMembers($query)
@@ -127,16 +216,50 @@ class User extends Authenticatable
         return $query->where('status', 'active');
     }
 
-    public function getDisplayNameAttribute($value)
+    public function scopeWithCuratorInfo($query)
     {
-        return $value ?? $this->name;
+        return $query->where(function($q) {
+            $q->whereNotNull('brand_name')
+              ->orWhereNotNull('portfolio_url')
+              ->orWhereNotNull('portofolio_url');
+        });
     }
 
-    public function getProfilePictureUrlAttribute()
+    public function hasLiked(Artwork $artwork): bool
     {
-        return $this->profile_picture 
-            ? asset('storage/' . $this->profile_picture)
-            : asset('images/default-avatar.png');
+        return $this->likes()->where('artwork_id', $artwork->id)->exists();
     }
 
+    public function hasFavorited(Artwork $artwork): bool
+    {
+        return $this->favorites()->where('artwork_id', $artwork->id)->exists();
+    }
+
+    public function submitCuratorApplication(array $data): bool
+    {
+        if (!$this->canApplyAsCurator()) {
+            return false;
+        }
+
+        $this->update([
+            'brand_name' => $data['brand_name'] ?? null,
+            'portfolio_url' => $data['portfolio_url'] ?? null,
+            'status' => 'pending',
+        ]);
+
+        return true;
+    }
+
+    public function getStatusSafe()
+    {
+        if (isset($this->attributes['status'])) {
+            return $this->attributes['status'];
+        }
+        
+        if (property_exists($this, 'status') && isset($this->status)) {
+            return $this->status;
+        }
+        
+        return null;
+    }
 }

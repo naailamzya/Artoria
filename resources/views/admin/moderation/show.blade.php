@@ -300,7 +300,7 @@
                     </h3>
                     <div class="bg-black/30 rounded-xl p-4 border border-artoria-500/20">
                         <p class="text-artoria-400 font-semibold text-lg mb-2">
-                            {{ $report->status === 'reviewed' ? '✅ Content Removed' : '🚫 Report Dismissed' }}
+                            {{ $report->status === 'reviewed' ? 'Content Removed' : 'Report Dismissed' }}
                         </p>
                         @if($report->admin_action)
                             <p class="text-gray-300 text-sm">{{ $report->admin_action }}</p>

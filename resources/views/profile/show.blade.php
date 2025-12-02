@@ -6,16 +6,11 @@
 <section class="relative py-12 overflow-hidden">
     <div class="container mx-auto px-4">
         <div class="max-w-5xl mx-auto space-y-6">
-            {{-- Profile Header with Stats --}}
             @include('profile.partials.header', ['user' => $user, 'stats' => $stats ?? []])
 
-            {{-- Delete Account (only for own profile) --}}
             @if(auth()->id() === $user->id)
                 @include('profile.partials.delete-user-form')
             @endif
-
-            {{-- User's Artworks Section (add this if needed) --}}
-            {{-- You can add artwork grid here --}}
         </div>
     </div>
 

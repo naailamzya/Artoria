@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class UserManagementController extends Controller
 {
@@ -35,15 +36,13 @@ class UserManagementController extends Controller
 
     public function show(User $user)
     {
-        // ✅ Load artworks WITHOUT withCount (likes_count & views_count sudah di column)
         $user->load(['artworks' => function($query) {
             $query->latest()->take(6);
         }]);
 
-        // Calculate stats
         $stats = [
             'artworks_count' => $user->artworks()->count(),
-            'likes_received' => $user->artworks()->sum('likes_count'), // ✅ Direct sum dari column
+            'likes_received' => $user->artworks()->sum('likes_count'),
             'profile_views' => $user->profile_views ?? 0,
             'comments_count' => $user->comments()->count(),
             'challenges_created' => $user->challenges()->count(),
@@ -62,7 +61,8 @@ class UserManagementController extends Controller
             ->get();
 
         $approvedCount = User::where('role', 'curator')->where('status', 'active')->count();
-        $rejectedCount = User::where('role', 'curator')->where('status', 'rejected')->count();
+        
+        $rejectedCount = 0;
 
         return view('admin.curators.pending', compact('pendingCurators', 'approvedCount', 'rejectedCount'));
     }
@@ -74,8 +74,16 @@ class UserManagementController extends Controller
         }
 
         $user->update(['status' => 'active']);
+        
+        Log::info(' Curator approved', [
+            'user_id' => $user->id,
+            'name' => $user->name,
+            'by_admin' => auth()->id(),
+        ]);
 
-        return redirect()->back()->with('success', "Curator {$user->name} has been approved!");
+        return redirect()->back()->with('success', 
+            "🎨 Curator <strong>{$user->name}</strong> has been approved! They can now create challenges."
+        );
     }
 
     public function rejectCurator(User $user)
@@ -84,9 +92,22 @@ class UserManagementController extends Controller
             return redirect()->back()->with('error', 'Invalid curator application.');
         }
 
-        $user->update(['status' => 'rejected']);
+        $userName = $user->name;
+        $userEmail = $user->email;
 
-        return redirect()->back()->with('success', "Curator application for {$user->name} has been rejected.");
+        $user->delete();
+        
+        Log::warning('🗑️ Curator rejected and deleted', [
+            'user_id' => $user->id,
+            'name' => $userName,
+            'email' => $userEmail,
+            'by_admin' => auth()->id(),
+        ]);
+
+        return redirect()->back()->with('warning', 
+            "🗑️ Curator <strong>{$userName}</strong> has been rejected and account deleted. " .
+            "They must register again to apply."
+        );
     }
 
     public function suspend(User $user)
@@ -95,16 +116,38 @@ class UserManagementController extends Controller
             return redirect()->back()->with('error', 'You cannot suspend yourself.');
         }
 
+        $oldStatus = $user->status;
         $user->update(['status' => 'suspended']);
+        
+        Log::warning('🚫 User suspended', [
+            'user_id' => $user->id,
+            'name' => $user->name,
+            'old_status' => $oldStatus,
+            'new_status' => 'suspended',
+            'by_admin' => auth()->id(),
+        ]);
 
-        return redirect()->back()->with('success', "User {$user->name} has been suspended.");
+        return redirect()->back()->with('warning', 
+            "🚫 User <strong>{$user->name}</strong> has been suspended. They cannot login until activated."
+        );
     }
 
     public function activate(User $user)
     {
+        $oldStatus = $user->status;
         $user->update(['status' => 'active']);
+        
+        Log::info('✅ User activated', [
+            'user_id' => $user->id,
+            'name' => $user->name,
+            'old_status' => $oldStatus,
+            'new_status' => 'active',
+            'by_admin' => auth()->id(),
+        ]);
 
-        return redirect()->back()->with('success', "User {$user->name} has been activated.");
+        return redirect()->back()->with('success', 
+            "✅ User <strong>{$user->name}</strong> has been activated."
+        );
     }
 
     public function destroy(User $user)
@@ -113,8 +156,28 @@ class UserManagementController extends Controller
             return redirect()->back()->with('error', 'You cannot delete yourself.');
         }
 
-        $user->delete();
+        $userName = $user->name;
+        $user->delete(); // Hard delete
+        
+        Log::warning('🗑️ User permanently deleted', [
+            'user_id' => $user->id,
+            'name' => $userName,
+            'by_admin' => auth()->id(),
+        ]);
 
-        return redirect()->route('admin.users.index')->with('success', "User {$user->name} has been deleted.");
+        return redirect()->route('admin.users.index')
+            ->with('warning', "🗑️ User <strong>{$userName}</strong> has been permanently deleted.");
+    }
+
+    public function deletedUsers()
+    {
+        $deletedUsers = collect(); // Empty collection
+        
+        return view('admin.users.deleted', compact('deletedUsers'));
+    }
+
+    public function restoreUser($id)
+    {
+        return redirect()->back()->with('error', 'Restore functionality not available without soft deletes.');
     }
 }

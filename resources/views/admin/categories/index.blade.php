@@ -5,11 +5,11 @@
 @section('content')
 <div class="py-12">
     <div class="container mx-auto px-4">
-        <!-- Header -->
+
         <div class="flex items-center justify-between mb-8">
             <div>
                 <h1 class="text-4xl md:text-5xl font-display font-bold text-white mb-2">
-                    Category Management 🏷️
+                    Category Management 
                 </h1>
                 <p class="text-gray-400">Organize artwork categories</p>
             </div>
@@ -21,7 +21,6 @@
             </a>
         </div>
 
-        <!-- Categories Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @forelse($categories as $category)
                 <div class="glass rounded-2xl p-6 hover:scale-105 hover:shadow-neon-red transition-all duration-300 group">
@@ -36,7 +35,6 @@
                         </div>
                     </div>
 
-                    <!-- Stats -->
                     <div class="flex items-center space-x-6 mb-4 text-sm">
                         <div class="flex items-center text-gray-400">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -47,11 +45,7 @@
                         </div>
                     </div>
 
-                    <!-- Actions -->
                     <div class="flex gap-2 pt-4 border-t border-white/10">
-                        <a href="{{ route('admin.categories.show', $category) }}" class="flex-1 btn-secondary text-center text-sm py-2">
-                            View
-                        </a>
                         <a href="{{ route('admin.categories.edit', $category) }}" class="flex-1 btn-secondary text-center text-sm py-2">
                             Edit
                         </a>
@@ -60,11 +54,18 @@
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" 
-                                        onclick="return confirm('Delete this category?')"
+                                        onclick="return confirm('Delete this category? This action cannot be undone.')"
                                         class="w-full px-4 py-2 bg-red-500/20 text-red-300 font-semibold rounded-xl hover:bg-red-500/30 transition-all duration-300 text-sm">
                                     Delete
                                 </button>
                             </form>
+                        @else
+                            <button 
+                                class="flex-1 px-4 py-2 bg-gray-500/20 text-gray-300 font-semibold rounded-xl cursor-not-allowed text-sm"
+                                disabled
+                                title="Cannot delete category with artworks">
+                                Delete
+                            </button>
                         @endif
                     </div>
                 </div>
@@ -82,7 +83,6 @@
             @endforelse
         </div>
 
-        <!-- Pagination -->
         @if($categories->hasPages())
             <div class="mt-8 flex justify-center">
                 {{ $categories->links() }}

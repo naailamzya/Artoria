@@ -11,7 +11,7 @@
                 Art <span class="gradient-text neon-text">Challenges</span>
             </h1>
             <p class="text-xl text-gray-300 max-w-3xl mx-auto">
-                Compete with talented artists, showcase your skills, and win amazing prizes! 🏆
+                Compete with talented artists, showcase your skills, and win amazing prizes!
             </p>
         </div>
 
@@ -20,15 +20,15 @@
             <div class="glass rounded-2xl p-2 inline-flex space-x-2">
                 <a href="{{ route('challenges.index', ['filter' => 'active']) }}" 
                    class="px-6 py-3 rounded-xl font-semibold transition-all duration-300 {{ $filter === 'active' ? 'bg-gradient-to-r from-artoria-500 to-artoria-600 text-white shadow-neon-red' : 'text-gray-300 hover:text-white hover:bg-white/5' }}">
-                    🔥 Active
+                    Active
                 </a>
                 <a href="{{ route('challenges.index', ['filter' => 'upcoming']) }}" 
                    class="px-6 py-3 rounded-xl font-semibold transition-all duration-300 {{ $filter === 'upcoming' ? 'bg-gradient-to-r from-artoria-500 to-artoria-600 text-white shadow-neon-red' : 'text-gray-300 hover:text-white hover:bg-white/5' }}">
-                    ⏰ Upcoming
+                    Upcoming
                 </a>
                 <a href="{{ route('challenges.index', ['filter' => 'ended']) }}" 
                    class="px-6 py-3 rounded-xl font-semibold transition-all duration-300 {{ $filter === 'ended' ? 'bg-gradient-to-r from-artoria-500 to-artoria-600 text-white shadow-neon-red' : 'text-gray-300 hover:text-white hover:bg-white/5' }}">
-                    🏁 Ended
+                    Ended
                 </a>
             </div>
         </div>
@@ -41,12 +41,10 @@
                 @endforeach
             </div>
 
-            <!-- Pagination -->
             <div class="flex justify-center">
                 {{ $challenges->appends(['filter' => $filter])->links() }}
             </div>
         @else
-            <!-- Empty State -->
             <div class="text-center py-20">
                 <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-artoria-500/20 to-pink-500/20 rounded-full flex items-center justify-center animate-pulse-slow">
                     <svg class="w-12 h-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -67,7 +65,6 @@
             </div>
         @endif
 
-        <!-- CTA for Curators -->
         @auth
             @if(auth()->user()->isCurator() && auth()->user()->isActive())
                 <div class="mt-16 glass rounded-3xl p-12 text-center relative overflow-hidden">

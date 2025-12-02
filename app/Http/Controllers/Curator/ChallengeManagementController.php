@@ -16,6 +16,9 @@ class ChallengeManagementController extends Controller
     public function myChallenges()
     {
         $challenges = Challenge::where('curator_id', auth()->id())
+            ->when(request('status'), function ($query, $status) {
+                $query->where('status', $status);
+            })
             ->withCount('entries')
             ->latest()
             ->paginate(12);

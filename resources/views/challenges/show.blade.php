@@ -5,39 +5,34 @@
 @section('content')
 <div class="py-12">
     <div class="container mx-auto px-4">
-        <!-- Banner Section -->
-        <div class="relative h-96 rounded-3xl overflow-hidden mb-8">
+        <div class="relative h-64 md:h-96 rounded-3xl overflow-hidden mb-8">
             <img src="{{ $challenge->banner_url }}" 
                  alt="{{ $challenge->title }}" 
                  class="w-full h-full object-cover">
             
-            <!-- Overlay -->
             <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
             
-            <!-- Content -->
             <div class="absolute inset-0 flex flex-col justify-end p-8">
-                <!-- Status Badge -->
                 <div class="mb-4">
                     @if($challenge->isActive())
-                        <span class="badge-green backdrop-blur-xl text-lg px-4 py-2">
-                            🔥 Active Challenge
+                        <span class="badge-green">
+                            Active Challenge
                         </span>
                     @elseif($challenge->hasEnded())
-                        <span class="badge-red backdrop-blur-xl text-lg px-4 py-2">
-                            🏁 Challenge Ended
+                        <span class="badge-red">
+                            Challenge Ended
                         </span>
                     @else
-                        <span class="badge-blue backdrop-blur-xl text-lg px-4 py-2">
-                            ⏰ Coming Soon
+                        <span class="badge-blue">
+                            Coming Soon
                         </span>
                     @endif
                 </div>
                 
-                <h1 class="text-4xl md:text-6xl font-display font-bold text-white mb-4 text-shadow-lg">
+                <h1 class="text-3xl md:text-6xl font-display font-bold text-white mb-4">
                     {{ $challenge->title }}
                 </h1>
                 
-                <!-- Meta Info -->
                 <div class="flex flex-wrap gap-6 text-white/90">
                     <div class="flex items-center space-x-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,10 +57,8 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Main Content -->
             <div class="lg:col-span-2 space-y-6">
-                <!-- Description -->
-                <div class="glass rounded-2xl p-8">
+                <div class="glass rounded-2xl p-6">
                     <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
                         <svg class="w-6 h-6 mr-2 text-artoria-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -75,9 +68,8 @@
                     <p class="text-gray-300 leading-relaxed whitespace-pre-line">{{ $challenge->description }}</p>
                 </div>
 
-                <!-- Rules -->
                 @if($challenge->rules)
-                    <div class="glass rounded-2xl p-8">
+                    <div class="glass rounded-2xl p-6">
                         <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
                             <svg class="w-6 h-6 mr-2 text-artoria-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -88,46 +80,7 @@
                     </div>
                 @endif
 
-                <!-- Prizes -->
-                @if($challenge->prizes)
-                    <div class="glass rounded-2xl p-8 border-2 border-yellow-500/30">
-                        <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
-                            <svg class="w-6 h-6 mr-2 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"></path>
-                            </svg>
-                            Prizes
-                        </h2>
-                        <p class="text-gray-300 leading-relaxed whitespace-pre-line">{{ $challenge->prizes }}</p>
-                    </div>
-                @endif
-
-                <!-- Winners (If Ended) -->
-                @if($winners->count() > 0)
-                    <div class="glass rounded-2xl p-8 border-2 border-artoria-500/30">
-                        <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-                            <svg class="w-6 h-6 mr-2 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
-                            </svg>
-                            🏆 Winners
-                        </h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            @foreach($winners as $winner)
-                                <div class="glass-hover rounded-xl p-4 border-2 border-yellow-500/20">
-                                    <a href="{{ route('artworks.show', $winner->artwork) }}" class="block">
-                                        <img src="{{ $winner->artwork->image_url }}" 
-                                             alt="{{ $winner->artwork->title }}" 
-                                             class="w-full h-48 object-cover rounded-lg mb-3">
-                                        <h3 class="text-white font-bold mb-1">{{ $winner->artwork->title }}</h3>
-                                        <p class="text-sm text-gray-400">by {{ $winner->artwork->user->display_name }}</p>
-                                    </a>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-
-                <!-- Entries -->
-                <div class="glass rounded-2xl p-8">
+                <div class="glass rounded-2xl p-6">
                     <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
                         <svg class="w-6 h-6 mr-2 text-artoria-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -138,11 +91,9 @@
                     @if($entries->count() > 0)
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                             @foreach($entries as $entry)
-                                <x-artwork-card :artwork="$entry->artwork" />
+                                <x-artwork-card :artwork="$entry" />
                             @endforeach
                         </div>
-
-                        <!-- Pagination -->
                         <div class="flex justify-center">
                             {{ $entries->links() }}
                         </div>
@@ -159,12 +110,11 @@
 
             <!-- Sidebar -->
             <div class="space-y-6">
-                <!-- Submit Button -->
                 @auth
                     @if(auth()->user()->isMember() || auth()->user()->isCurator())
                         @if($challenge->canAcceptSubmissions())
-                            <div class="glass rounded-2xl p-6">
-                                @if($hasSubmitted)
+                            @if($hasSubmitted)
+                                <div class="glass rounded-2xl p-6 border border-green-500/30">
                                     <div class="text-center space-y-4">
                                         <div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto">
                                             <svg class="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -173,20 +123,68 @@
                                         </div>
                                         <h3 class="text-xl font-bold text-white">You're Participating!</h3>
                                         <p class="text-gray-400">Your entry has been submitted</p>
-                                        <a href="{{ route('artworks.show', $userEntry->artwork) }}" class="btn-secondary w-full">
-                                            View Your Entry
-                                        </a>
+                                        @if($userEntries->first())
+                                            <a href="{{ route('artworks.show', $userEntries->first()) }}" 
+                                               class="btn-secondary w-full">
+                                                View Your Entry
+                                            </a>
+                                        @endif
                                     </div>
-                                @else
+                                </div>
+                            @else
+                                <!-- DIRECT SUBMIT FORM -->
+                                <div class="glass rounded-2xl p-6">
                                     <h3 class="text-xl font-bold text-white mb-4">Ready to Compete?</h3>
-                                    <p class="text-gray-400 text-sm mb-4">Submit your artwork to this challenge</p>
-                                    <button @click="$dispatch('submit-modal')" class="btn-primary w-full">
-                                        Submit Your Work
-                                    </button>
-                                @endif
-                            </div>
+                                    <p class="text-gray-400 text-sm mb-6">Submit your artwork to this challenge</p>
+                                    
+                                    @php
+                                        $userArtworks = auth()->user()->artworks ?? collect();
+                                    @endphp
+                                    
+                                    @if($userArtworks->count() > 0)
+                                        <form action="{{ route('challenges.submit', $challenge) }}" method="POST" 
+                                              class="space-y-4">
+                                            @csrf
+                                            
+                                            <div>
+                                                <label class="block text-gray-300 mb-2">Select Your Artwork</label>
+                                                <select name="artwork_id" required 
+                                                        class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-artoria-500 focus:ring-2 focus:ring-artoria-500/50">
+                                                    <option value="">Choose an artwork...</option>
+                                                    @foreach($userArtworks as $artwork)
+                                                        <option value="{{ $artwork->id }}">{{ $artwork->title }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            
+                                            <button type="submit" 
+                                                    class="btn-primary w-full">
+                                                Submit Your Work
+                                            </button>
+                                            
+                                            <div class="text-center">
+                                                <a href="{{ route('artworks.create') }}" 
+                                                   class="text-artoria-400 hover:text-artoria-300 text-sm">
+                                                    Don't have artwork? Create one first
+                                                </a>
+                                            </div>
+                                        </form>
+                                    @else
+                                        <div class="text-center py-6">
+                                            <svg class="w-16 h-16 mx-auto text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                            </svg>
+                                            <p class="text-gray-300 mb-6">You need to create an artwork first</p>
+                                            <a href="{{ route('artworks.create') }}" 
+                                               class="btn-primary w-full">
+                                                 Create Artwork
+                                            </a>
+                                        </div>
+                                    @endif
+                                </div>
+                            @endif
                         @else
-                            <div class="glass rounded-2xl p-6 border-2 border-red-500/30">
+                            <div class="glass rounded-2xl p-6 border border-red-500/30">
                                 <div class="text-center">
                                     <svg class="w-12 h-12 text-red-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -200,10 +198,16 @@
                 @else
                     <div class="glass rounded-2xl p-6">
                         <h3 class="text-xl font-bold text-white mb-4">Want to Participate?</h3>
-                        <p class="text-gray-400 text-sm mb-4">Login to submit your artwork</p>
-                        <div class="space-y-2">
-                            <a href="{{ route('login') }}" class="btn-primary w-full text-center block">Login</a>
-                            <a href="{{ route('register') }}" class="btn-secondary w-full text-center block">Sign Up</a>
+                        <p class="text-gray-400 text-sm mb-6">Login to submit your artwork</p>
+                        <div class="space-y-3">
+                            <a href="{{ route('login') }}" 
+                               class="btn-primary w-full text-center block">
+                                Login
+                            </a>
+                            <a href="{{ route('register') }}" 
+                               class="btn-secondary w-full text-center block">
+                                Sign Up
+                            </a>
                         </div>
                     </div>
                 @endauth
@@ -249,90 +253,116 @@
                     </div>
                 </div>
 
-                <!-- Stats -->
-                <div class="glass rounded-2xl p-6">
-                    <h3 class="text-lg font-bold text-white mb-4">Stats</h3>
-                    <div class="space-y-3">
-                        <div class="flex justify-between">
-                            <span class="text-gray-400">Total Entries</span>
-                            <span class="text-white font-semibold">{{ $entries->total() }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-400">Participants</span>
-                            <span class="text-white font-semibold">{{ $entries->pluck('user_id')->unique()->count() }}</span>
-                        </div>
-                        @if($winners->count() > 0)
-                            <div class="flex justify-between">
-                                <span class="text-gray-400">Winners</span>
-                                <span class="text-yellow-400 font-semibold">{{ $winners->count() }}</span>
+                <!-- Curator Management Section -->
+                @if(auth()->user()?->isCurator() && auth()->user()->id === $challenge->curator_id)
+                    <div class="glass rounded-2xl p-6">
+                        <h3 class="text-lg font-bold text-white mb-4 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Manage Challenge
+                        </h3>
+
+                        <!-- Winner Selection Section -->
+                        @if($challenge->hasEnded() && $entries->count() > 0)
+                            <div class="mb-4">
+                                <p class="text-sm text-gray-400 mb-3">Select Winner</p>
+                                <form action="{{ route('curator.challenges.select-winner', [$challenge, $entries->first()]) }}" method="POST" class="space-y-3" id="winner-form">
+                                    @csrf
+                                    @method('PATCH')
+                                    
+                                    <select name="entry_id" required 
+                                            class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-artoria-500 focus:ring-2 focus:ring-artoria-500/50">
+                                        <option value="">Choose winner...</option>
+                                        @foreach($entries as $entry)
+                                            <option value="{{ $entry->id }}" 
+                                                    {{ $entry->is_winner ? 'selected' : '' }}>
+                                                {{ $entry->artwork?->title ?? 'Unknown Artwork' }} by {{ $entry->user->display_name }}
+                                                {{ $entry->is_winner ? '(WINNER)' : '' }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    
+                                    <button type="submit" class="btn-primary w-full" 
+                                            onclick="return confirm('Are you sure you want to set this as the winner?')">
+                                        Set Winner
+                                    </button>
+                                </form>
                             </div>
                         @endif
+
+                        <!-- Display Current Winners -->
+                        @php
+                            $winners = $challenge->entries()->where('is_winner', true)->with('artwork.user')->get();
+                        @endphp
+                        @if($winners->count() > 0)
+                            <div class="border-t border-gray-700 pt-4 mt-4">
+                                <p class="text-sm text-gray-400 mb-2">🏆 Current Winner{{ $winners->count() > 1 ? 's' : '' }}</p>
+                                @foreach($winners as $winner)
+                                    <div class="bg-gradient-to-r from-yellow-500/10 to-yellow-600/10 border border-yellow-500/30 rounded-lg p-3 mb-2 last:mb-0">
+                                        <div class="flex justify-between items-center">
+                                            <div>
+                                                <p class="text-white text-sm font-semibold">{{ $winner->artwork?->title ?? 'Unknown Artwork' }}</p>
+                                                <p class="text-gray-300 text-xs">by {{ $winner->user->display_name }}</p>
+                                            </div>
+                                            <form action="{{ route('curator.challenges.remove-winner', [$challenge, $winner]) }}" method="POST" class="inline">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="text-red-400 hover:text-red-300 text-xs" onclick="return confirm('Are you sure you want to remove this winner?')">Remove</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        <!-- Entries Management Link -->
+                        <div class="border-t border-gray-700 pt-4 mt-4">
+                            <a href="{{ route('curator.challenges.entries', $challenge) }}" 
+                               class="btn-secondary w-full text-center block">
+                                View All Entries
+                            </a>
+                        </div>
                     </div>
-                </div>
+                @endif
             </div>
         </div>
     </div>
 </div>
 
-<!-- Submit Modal -->
-@auth
-    @if((auth()->user()->isMember() || auth()->user()->isCurator()) && $challenge->canAcceptSubmissions() && !$hasSubmitted)
-        <div x-data="{ show: false }" 
-             @submit-modal.window="show = true"
-             x-show="show"
-             x-cloak
-             class="fixed inset-0 z-50 overflow-y-auto"
-             style="display: none;">
-            
-            <!-- Backdrop -->
-            <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-                <div x-show="show" 
-                     x-transition:enter="ease-out duration-300"
-                     x-transition:enter-start="opacity-0"
-                     x-transition:enter-end="opacity-100"
-                     x-transition:leave="ease-in duration-200"
-                     x-transition:leave-start="opacity-100"
-                     x-transition:leave-end="opacity-0"
-                     @click="show = false"
-                     class="fixed inset-0 transition-opacity bg-black/80 backdrop-blur-sm"></div>
 
-                <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+<style>
+button, .btn-primary, .btn-secondary, a[href]:not([href="#"]):not([href="javascript:void(0)"]),
+input[type="submit"], input[type="button"] {
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 10;
+}
 
-                <!-- Modal Content -->
-                <div x-show="show" 
-                     x-transition:enter="ease-out duration-300"
-                     x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                     x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                     x-transition:leave="ease-in duration-200"
-                     x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                     x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                     class="inline-block align-bottom glass border border-white/10 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                    
-                    <form action="{{ route('challenges.submit', $challenge) }}" method="POST" class="p-6">
-                        @csrf
-                        
-                        <h3 class="text-2xl font-bold text-white mb-4">Submit to Challenge</h3>
-                        <p class="text-gray-400 mb-6">Select an artwork from your portfolio to submit</p>
+.glass {
+    position: relative;
+    z-index: 1;
+}
 
-                        <select name="artwork_id" required class="input-artoria mb-6">
-                            <option value="">Choose an artwork...</option>
-                            @foreach(auth()->user()->artworks as $artwork)
-                                <option value="{{ $artwork->id }}">{{ $artwork->title }}</option>
-                            @endforeach
-                        </select>
+.btn-primary:hover, .btn-secondary:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease;
+}
+</style>
 
-                        <div class="flex gap-3">
-                            <button type="submit" class="flex-1 btn-primary">
-                                Submit Entry
-                            </button>
-                            <button type="button" @click="show = false" class="flex-1 btn-secondary">
-                                Cancel
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    @endif
-@endauth
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const buttons = document.querySelectorAll('button, .btn-primary, a.btn');
+    console.log('Found', buttons.length, 'buttons on page');
+    
+    buttons.forEach(btn => {
+        if (!btn.hasAttribute('onclick')) {
+            btn.addEventListener('click', function(e) {
+                console.log('Button clicked:', this.textContent.trim());
+            });
+        }
+    });
+});
+</script>
 @endsection

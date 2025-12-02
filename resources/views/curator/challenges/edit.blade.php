@@ -28,7 +28,6 @@
             @csrf
             @method('PUT')
 
-            <!-- Banner Image -->
             <div class="glass rounded-2xl p-8">
                 <h2 class="text-xl font-bold text-white mb-6 flex items-center">
                     <svg class="w-6 h-6 mr-2 text-artoria-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -48,7 +47,6 @@
                 </p>
             </div>
 
-            <!-- Challenge Details -->
             <div class="glass rounded-2xl p-8 space-y-6">
                 <h2 class="text-xl font-bold text-white mb-6 flex items-center">
                     <svg class="w-6 h-6 mr-2 text-artoria-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -158,7 +156,7 @@
                     </svg>
                     <span class="text-lg font-semibold">Save Changes</span>
                 </button>
-                <a href="{{ route('curator.dashboard') }}" class="btn-secondary flex-1 flex items-center justify-center space-x-2 py-4">
+                <a href="{{ route('curator.challenges.mine') }}" class="btn-secondary flex-1 flex items-center justify-center space-x-2 py-4">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>

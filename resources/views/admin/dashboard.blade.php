@@ -5,7 +5,6 @@
 @section('content')
 <div class="py-12">
     <div class="container mx-auto px-4">
-        <!-- Header -->
         <div class="mb-8">
             <h1 class="text-4xl md:text-6xl font-display font-bold text-white mb-2">
                 <span class="gradient-text neon-text">Admin Control Center</span> 🛡️
@@ -13,9 +12,7 @@
             <p class="text-gray-400">Complete platform oversight and management</p>
         </div>
 
-        <!-- Primary Stats Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Total Users -->
             <div class="stat-card group hover:scale-105 border-2 border-artoria-500/20">
                 <div class="flex items-center justify-between mb-4">
                     <div class="w-14 h-14 bg-gradient-to-br from-artoria-500 to-pink-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-neon-red">
@@ -35,7 +32,6 @@
                 </div>
             </div>
 
-            <!-- Pending Curators -->
             <div class="stat-card group hover:scale-105 {{ $stats['pending_curators'] > 0 ? 'border-2 border-yellow-500/30 animate-pulse-slow' : '' }}">
                 <div class="flex items-center justify-between mb-4">
                     <div class="w-14 h-14 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -56,7 +52,6 @@
                 @endif
             </div>
 
-            <!-- Pending Reports -->
             <div class="stat-card group hover:scale-105 {{ $stats['pending_reports'] > 0 ? 'border-2 border-red-500/30 animate-pulse-slow' : '' }}">
                 <div class="flex items-center justify-between mb-4">
                     <div class="w-14 h-14 bg-gradient-to-br from-red-500 to-pink-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -77,7 +72,6 @@
                 @endif
             </div>
 
-            <!-- Total Content -->
             <div class="stat-card group hover:scale-105">
                 <div class="flex items-center justify-between mb-4">
                     <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -95,7 +89,55 @@
             </div>
         </div>
 
-        <!-- Quick Actions Grid -->
+        @if(isset($pendingCuratorApplications) && $pendingCuratorApplications->count() > 0)
+        <div class="glass rounded-2xl p-6 mb-8 border-2 border-yellow-500/30">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-white flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Pending Curator Applications
+                </h2>
+                <a href="{{ route('admin.curators.pending') }}" class="text-yellow-400 hover:text-yellow-300 text-sm font-semibold">
+                    View All →
+                </a>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                @foreach($pendingCuratorApplications as $curator)
+                <div class="bg-yellow-500/5 border border-yellow-500/20 rounded-xl p-4 hover:bg-yellow-500/10 transition-colors">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <img src="{{ $curator->profile_picture_url }}" 
+                             alt="{{ $curator->name }}" 
+                             class="w-12 h-12 rounded-lg object-cover">
+                        <div>
+                            <h4 class="text-white font-semibold text-sm">{{ $curator->name }}</h4>
+                            <p class="text-xs text-gray-400">Artworks: {{ $curator->artworks_count }}</p>
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <form action="{{ route('admin.curators.approve', $curator) }}" method="POST" class="flex-1">
+                            @csrf
+                            <button type="submit" 
+                                    class="w-full px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded-lg transition-colors">
+                                Approve
+                            </button>
+                        </form>
+                        <form action="{{ route('admin.curators.reject', $curator) }}" method="POST" class="flex-1">
+                            @csrf
+                            <button type="submit" 
+                                    onclick="return confirm('Reject and delete this curator?')"
+                                    class="w-full px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg transition-colors">
+                                Reject
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <a href="{{ route('admin.users.index') }}" class="glass rounded-2xl p-6 hover:scale-105 hover:shadow-neon-red transition-all duration-300 group">
                 <div class="flex items-center space-x-4">
@@ -155,7 +197,6 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <!-- Recent Users -->
             <div class="glass rounded-2xl p-6">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-2xl font-bold text-white flex items-center">
@@ -190,7 +231,6 @@
                 </div>
             </div>
 
-            <!-- Recent Artworks -->
             <div class="glass rounded-2xl p-6">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-2xl font-bold text-white flex items-center">
@@ -212,8 +252,8 @@
                                 </h4>
                                 <p class="text-xs text-gray-400">by {{ $artwork->user->display_name }}</p>
                                 <div class="flex items-center space-x-3 mt-1 text-xs text-gray-500">
-                                    <span>❤️ {{ $artwork->likes_count }}</span>
-                                    <span>👁️ {{ $artwork->views_count }}</span>
+                                    <span> {{ $artwork->likes_count }}</span>
+                                    <span> {{ $artwork->views_count }}</span>
                                 </div>
                             </div>
                         </a>
@@ -222,9 +262,7 @@
             </div>
         </div>
 
-        <!-- Pending Reports & Popular Content -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Pending Reports -->
             @if($recentReports->count() > 0)
                 <div class="glass rounded-2xl p-6 border-2 border-red-500/20">
                     <div class="flex items-center justify-between mb-6">
@@ -264,7 +302,6 @@
                 </div>
             @endif
 
-            <!-- Popular Artworks -->
             <div class="glass rounded-2xl p-6">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-2xl font-bold text-white flex items-center">
@@ -286,8 +323,8 @@
                                 </h4>
                                 <p class="text-xs text-gray-400">by {{ $artwork->user->display_name }}</p>
                                 <div class="flex items-center space-x-3 mt-1">
-                                    <span class="text-xs text-artoria-400 font-semibold">❤️ {{ $artwork->likes_count }} likes</span>
-                                    <span class="text-xs text-gray-500">👁️ {{ $artwork->views_count }}</span>
+                                    <span class="text-xs text-artoria-400 font-semibold"> {{ $artwork->likes_count }} likes</span>
+                                    <span class="text-xs text-gray-500"> {{ $artwork->views_count }}</span>
                                 </div>
                             </div>
                         </a>

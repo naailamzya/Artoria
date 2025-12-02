@@ -5,17 +5,47 @@
 @section('content')
 <div class="py-12">
     <div class="container mx-auto px-4">
-        <!-- Welcome Header -->
         <div class="mb-8">
             <h1 class="text-4xl md:text-5xl font-display font-bold text-white mb-2">
-                Welcome back, <span class="gradient-text">{{ $user->display_name }}</span>! 🎨
+                Welcome , <span class="gradient-text">{{ $user->display_name }}</span>! 
             </h1>
             <p class="text-gray-400">Here's what's happening with your art</p>
         </div>
 
+        @if($user->role === 'member' && ($user->brand_name || $user->portfolio_url))
+            <div class="mb-6 animate-fade-in">
+                <div class="bg-gradient-to-r from-yellow-900/50 to-orange-900/50 border-l-4 border-yellow-500 p-5 rounded-r-xl">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-yellow-200 mb-1">Curator Application Notice</h3>
+                            <p class="text-yellow-100 mb-3">
+                                You've previously applied to become a curator. 
+                                @if($user->brand_name)
+                                    Your brand <strong class="text-white">{{ $user->brand_name }}</strong> is still on file.
+                                @endif
+                            </p>
+                            <div class="flex flex-wrap gap-3">
+                                <a href="{{ route('profile.edit') }}" 
+                                   class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white font-semibold rounded-lg transition-all duration-300 hover:scale-105 flex items-center text-sm">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                    Update Profile
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- Stats Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Total Artworks -->
             <div class="stat-card group hover:scale-105">
                 <div class="flex items-center justify-between mb-4">
                     <div class="w-12 h-12 bg-gradient-to-br from-artoria-500/20 to-pink-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -151,6 +181,7 @@
                                         <span class="flex items-center">
                                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                             </svg>
                                             {{ $artwork->views_count }}
                                         </span>
@@ -223,4 +254,36 @@
         </div>
     </div>
 </div>
+
+@push('styles')
+<style>
+    .glass {
+        background: rgba(17, 24, 39, 0.5);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .stat-card {
+        @apply glass rounded-2xl p-6 transition-transform duration-300;
+    }
+    
+    .glass-hover {
+        @apply hover:bg-white/5 transition-colors duration-300;
+    }
+    
+    .gradient-text {
+        @apply bg-gradient-to-r from-artoria-400 to-pink-400 bg-clip-text text-transparent;
+    }
+    
+    @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .animate-fade-in {
+        animation: fade-in 0.5s ease-out;
+    }
+</style>
+@endpush
 @endsection

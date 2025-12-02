@@ -9,68 +9,70 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
-    /**
-     * Display the registration view.
-     */
     public function create(): View
     {
         return view('auth.register');
     }
 
-    /**
-     * Handle an incoming registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['required', 'in:member,curator'],
-            
-            // Curator fields (required only if role is curator)
-            'brand_name' => ['required_if:role,curator', 'string', 'max:255'],
-            'brand_description' => ['required_if:role,curator', 'string', 'max:1000'],
-            'website' => ['nullable', 'url', 'max:255'],
-            'portfolio_url' => ['nullable', 'url', 'max:255'],
+            'account_type' => ['required', 'in:member,curator'],
         ]);
 
-        // Tentukan status berdasarkan role
-        $status = $request->role === 'curator' ? 'pending' : 'active';
+        if ($request->account_type === 'curator') {
+            $request->validate([
+                'brand_name' => ['required', 'string', 'max:255'],
+                'portfolio_url' => ['required', 'url', 'max:255'],
+                'bio' => ['nullable', 'string', 'max:1000'],
+                'logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,svg', 'max:2048'],
+            ]);
+        }
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
+        $status = $validated['account_type'] === 'curator' ? 'pending' : 'active';
+
+        $profilePicturePath = null;
+        if ($request->hasFile('logo')) {
+            $profilePicturePath = $request->file('logo')->store('profile-pictures', 'public');
+        }
+
+        $userData = [
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'role' => $validated['account_type'],
             'status' => $status,
-            
-            // Curator specific fields
-            'brand_name' => $request->brand_name,
-            'brand_description' => $request->brand_description,
-            'website' => $request->website,
-            'portfolio_url' => $request->portfolio_url,
-        ]);
+            'profile_picture' => $profilePicturePath,
+            'bio' => $request->bio ?? null,
+        ];
+
+        if ($validated['account_type'] === 'curator') {
+            $userData['brand_name'] = $request->brand_name;
+            $userData['portfolio_url'] = $request->portfolio_url;
+        }
+
+        $user = User::create($userData);
 
         event(new Registered($user));
 
-        // Login user (baik member maupun curator)
         Auth::login($user);
+        $request->session()->regenerate();
 
-        // Redirect berdasarkan role
-        if ($user->role === 'curator' && $user->status === 'pending') {
-            // Curator pending → pending page
-            return redirect()->route('curator.pending');
+        if ($user->role === 'curator') {
+            return redirect()->route('curator.pending')
+                ->with('success', 'Curator application submitted! Please wait for admin approval.');
         }
 
-        // Member atau curator active → dashboard
-        return redirect()->route('dashboard');
+        return redirect()->route('dashboard')
+            ->with('success', 'Welcome to Artoria! Your account has been created.');
     }
 }

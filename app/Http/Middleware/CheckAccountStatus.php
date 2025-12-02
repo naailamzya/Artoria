@@ -4,33 +4,59 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckAccountStatus
 {
     /**
-     * Handle an incoming request.
-     *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
+{
+    \Log::info('CheckAccountStatus middleware called', [
+        'url' => $request->fullUrl(),
+        'user_id' => $request->user()?->id,
+        'user_role' => $request->user()?->role,
+        'user_status' => $request->user()?->status,
+    ]);
+    
+}
         $user = $request->user();
 
         if (!$user) {
             return redirect()->route('login');
         }
 
-        // Suspended users harus logout
         if ($user->status === 'suspended') {
-            auth()->logout();
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            
             return redirect()->route('login')
-                ->withErrors(['email' => 'Your account has been suspended. Please contact support.']);
+                ->with('error', 'Your account has been suspended.');
         }
 
-        // ⚠️ PENTING: Curator pending BOLEH lewat (akan di-redirect di route/controller)
-        // Jangan block di sini, biar bisa akses curator.pending page
-        
-        return $next($request);
+        if ($user->role === 'admin') {
+            return $next($request);
+        }
+
+        if ($user->status === 'active') {
+            return $next($request);
+        }
+
+        if ($user->role === 'curator' && $user->status === 'pending') {
+            
+            if ($request->routeIs('curator.pending')) {
+                return $next($request);
+            }
+
+            return redirect()->route('curator.pending')
+                ->with('warning', 'Please wait for curator approval to gain full access.');
+        }
+
+        return redirect()->route('dashboard')
+            ->with('error', 'Your account is not fully active or authorized for this action.');
     }
 }

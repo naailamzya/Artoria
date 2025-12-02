@@ -3,7 +3,7 @@
 @section('title', 'Showcase Your Art')
 
 @section('content')
-<!-- Hero Section -->
+
 <section class="relative py-20 overflow-hidden">
     <div class="container mx-auto px-4">
         <div class="text-center max-w-4xl mx-auto space-y-6">
@@ -26,30 +26,48 @@
                         Explore Artworks
                     </a>
                 @else
-                    <a href="{{ route('artworks.create') }}" class="btn-primary px-8 py-4 text-lg">
-                        Upload Your Art
-                        <svg class="w-5 h-5 inline ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                        </svg>
-                    </a>
+                    @if(auth()->user()->role === 'admin')
+\
+                        <a href="{{ route('admin.dashboard') }}" class="btn-primary px-8 py-4 text-lg">
+                            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
+                            Go to Admin Dashboard
+                        </a>
+                    @elseif(auth()->user()->role === 'curator')
+                        <a href="{{ route('curator.pending') }}" class="btn-primary px-8 py-4 text-lg">
+                            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                            </svg>
+                            Review Artworks
+                        </a>
+                    @else
+                        <a href="{{ route('artworks.create') }}" class="btn-primary px-8 py-4 text-lg">
+                            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            Upload Your Art
+                            <svg class="w-5 h-5 inline ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                            </svg>
+                        </a>
+                    @endif
                 @endguest
             </div>
         </div>
     </div>
 
-    <!-- Floating Background Elements -->
     <div class="absolute top-1/4 left-0 w-72 h-72 bg-artoria-500/10 rounded-full blur-3xl animate-float"></div>
     <div class="absolute bottom-1/4 right-0 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl animate-float animation-delay-200"></div>
 </section>
 
-<!-- Featured Artworks Section -->
 @if($featuredArtworks->count() > 0)
 <section class="py-16">
     <div class="container mx-auto px-4">
         <div class="flex items-center justify-between mb-8">
             <div>
                 <h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-2">
-                    🔥 Featured Artworks
+                    Featured Artworks
                 </h2>
                 <p class="text-gray-400">Handpicked masterpieces from our community</p>
             </div>
@@ -72,14 +90,13 @@
 </section>
 @endif
 
-<!-- Active Challenges Section -->
 @if($activeChallenges->count() > 0)
 <section class="py-16">
     <div class="container mx-auto px-4">
         <div class="flex items-center justify-between mb-8">
             <div>
                 <h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-2">
-                    🏆 Active Challenges
+                    Active Challenges
                 </h2>
                 <p class="text-gray-400">Compete with artists and win amazing prizes</p>
             </div>
@@ -100,39 +117,36 @@
 </section>
 @endif
 
-<!-- Trending Tags Section -->
 @if($popularTags->count() > 0)
 <section class="py-16">
     <div class="container mx-auto px-4">
         <div class="text-center mb-8">
             <h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-2">
-                🎨 Trending Tags
+                Trending Tags
             </h2>
             <p class="text-gray-400">Discover art by popular themes</p>
         </div>
 
         <div class="flex flex-wrap justify-center gap-3">
             @foreach($popularTags as $tag)
-                <a href="{{ route('artworks.by-tag', $tag->slug) }}" 
-                   class="tag hover:scale-110 transition-transform duration-300"
-                   style="font-size: {{ 12 + min($tag->usage_count / 5, 8) }}px">
-                    #{{ $tag->name }}
-                    <span class="ml-1 opacity-60">({{ $tag->usage_count }})</span>
-                </a>
-            @endforeach
-        </div>
+            <span class="tag cursor-default"
+                style="font-size: {{ 12 + min($tag->usage_count / 5, 8) }}px">
+                #{{ $tag->name}}
+            <span class="ml-1 opacity-60">({{ $tag->usage_count }}) </span>
+        </span>
+    @endforeach
+    </div>
     </div>
 </section>
 @endif
 
-<!-- Popular Artworks Section -->
 @if($popularArtworks->count() > 0)
 <section class="py-16">
     <div class="container mx-auto px-4">
         <div class="flex items-center justify-between mb-8">
             <div>
                 <h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-2">
-                    ⭐ Popular Right Now
+                    Popular Right Now
                 </h2>
                 <p class="text-gray-400">Most loved by the community</p>
             </div>
@@ -149,14 +163,13 @@
 </section>
 @endif
 
-<!-- Latest Artworks Section -->
 @if($latestArtworks->count() > 0)
 <section class="py-16">
     <div class="container mx-auto px-4">
         <div class="flex items-center justify-between mb-8">
             <div>
                 <h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-2">
-                    ✨ Fresh Uploads
+                    Fresh Uploads
                 </h2>
                 <p class="text-gray-400">Latest creations from our artists</p>
             </div>
@@ -179,7 +192,6 @@
 </section>
 @endif
 
-<!-- Call to Action Section -->
 <section class="py-20">
     <div class="container mx-auto px-4">
         <div class="glass rounded-3xl p-12 text-center relative overflow-hidden">
@@ -200,9 +212,19 @@
                     </div>
                 @else
                     <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6">
-                        <a href="{{ route('artworks.create') }}" class="btn-primary px-8 py-4 text-lg">
-                            Upload Your First Artwork
-                        </a>
+                        @if(auth()->user()->role === 'admin')
+                            <a href="{{ route('admin.dashboard') }}" class="btn-primary px-8 py-4 text-lg">
+                                Go to Admin Panel
+                            </a>
+                        @elseif(auth()->user()->role === 'curator')
+                            <a href="{{ route('curator.pending') }}" class="btn-primary px-8 py-4 text-lg">
+                                Review Pending Artworks
+                            </a>
+                        @else
+                            <a href="{{ route('artworks.create') }}" class="btn-primary px-8 py-4 text-lg">
+                                Upload Your First Artwork
+                            </a>
+                        @endif
                     </div>
                 @endguest
             </div>
@@ -212,7 +234,7 @@
 
 @push('styles')
 <style>
-    /* Fade In Up Animation */
+
     @keyframes fade-in-up {
         from {
             opacity: 0;
@@ -238,7 +260,6 @@
         opacity: 0;
     }
 
-    /* Masonry Grid Layout - Perfect Pinterest Style */
     .masonry-grid {
         position: relative;
     }
@@ -248,7 +269,6 @@
         margin-bottom: 1.5rem;
     }
 
-    /* Responsive grid columns */
     @media (min-width: 768px) {
         .masonry-item {
             width: calc(50% - 0.75rem);
@@ -267,7 +287,6 @@
         }
     }
 
-    /* Smooth hover effect for masonry items */
     .masonry-item {
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
@@ -276,7 +295,6 @@
         transform: translateY(-4px);
     }
 
-    /* Floating animation for background elements */
     @keyframes float {
         0%, 100% {
             transform: translateY(0px);
@@ -290,7 +308,6 @@
         animation: float 6s ease-in-out infinite;
     }
 
-    /* Loading state for masonry grid */
     .masonry-grid[data-masonry-grid] {
         opacity: 0;
         transition: opacity 0.3s ease;
@@ -303,33 +320,27 @@
 @endpush
 
 @push('scripts')
-<!-- Masonry Layout Library -->
 <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
 <script src="https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize all masonry grids on the page
     const masonryGrids = document.querySelectorAll('[data-masonry-grid]');
     
     masonryGrids.forEach(function(grid) {
-        // Wait for images to load before initializing masonry
         imagesLoaded(grid, function() {
-            // Initialize Masonry
             const msnry = new Masonry(grid, {
                 itemSelector: '.masonry-item',
                 columnWidth: '.masonry-item',
                 percentPosition: true,
-                gutter: 24, // 1.5rem = 24px
+                gutter: 24, 
                 horizontalOrder: true,
                 transitionDuration: '0.3s',
                 stagger: 30
             });
 
-            // Add loaded class for fade-in effect
             grid.classList.add('masonry-loaded');
 
-            // Re-layout on window resize (debounced)
             let resizeTimeout;
             window.addEventListener('resize', function() {
                 clearTimeout(resizeTimeout);
@@ -340,7 +351,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Handle lazy loaded images (if you implement lazy loading later)
     document.addEventListener('lazyloaded', function(e) {
         const grid = e.target.closest('[data-masonry-grid]');
         if (grid && grid.masonryInstance) {

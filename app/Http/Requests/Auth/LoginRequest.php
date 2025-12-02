@@ -43,10 +43,8 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        // 1. Cari user berdasarkan email
         $user = User::where('email', $this->input('email'))->first();
 
-        // 2. Validasi kredensial (email + password)
         if (!$user || !Hash::check($this->input('password'), $user->password)) {
             RateLimiter::hit($this->throttleKey());
             
@@ -55,9 +53,6 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        // 3. Cek status akun SEBELUM login
-        
-        // Cek: Akun suspended (JANGAN login, langsung throw error)
         if ($user->status === 'suspended') {
             RateLimiter::hit($this->throttleKey());
             
@@ -66,12 +61,9 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        // 4. LOGIN dulu untuk SEMUA user (termasuk curator pending)
         Auth::login($user, $this->boolean('remember'));
         RateLimiter::clear($this->throttleKey());
 
-        // 5. Curator pending akan di-handle di AuthenticatedSessionController
-        // Jadi di sini kita TIDAK throw error lagi
     }
 
     /**

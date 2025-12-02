@@ -27,16 +27,16 @@
                     </div>
 
                     <!-- Category Filter -->
-                    <div class="lg:w-64">
-                        <select name="category" class="input-artoria">
-                            <option value="">All Categories</option>
-                            @foreach($categories as $category)
-                                <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
-                                    {{ $category->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+<div class="lg:w-64">
+    <select name="category" class="input-artoria">
+        <option value="">All Categories</option>
+        @foreach($categories as $category)
+            <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
+                {{ $category->name }}
+            </option>
+        @endforeach
+    </select>
+</div>
 
                     <!-- Sort -->
                     <div class="lg:w-48">

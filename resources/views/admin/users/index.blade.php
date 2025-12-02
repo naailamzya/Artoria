@@ -5,19 +5,16 @@
 @section('content')
 <div class="py-12">
     <div class="container mx-auto px-4">
-        <!-- Header -->
         <div class="mb-8">
             <h1 class="text-4xl md:text-5xl font-display font-bold text-white mb-2">
-                User Management 👥
+                User Management
             </h1>
             <p class="text-gray-400">Manage all platform users</p>
         </div>
 
-        <!-- Filters -->
         <div class="glass rounded-2xl p-6 mb-8">
             <form action="{{ route('admin.users.index') }}" method="GET" class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <!-- Search -->
                     <div class="md:col-span-2">
                         <input type="text" 
                                name="search" 
@@ -26,7 +23,6 @@
                                class="input-artoria">
                     </div>
 
-                    <!-- Role Filter -->
                     <select name="role" class="input-artoria">
                         <option value="">All Roles</option>
                         <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Admin</option>
@@ -34,7 +30,6 @@
                         <option value="member" {{ request('role') === 'member' ? 'selected' : '' }}>Member</option>
                     </select>
 
-                    <!-- Status Filter -->
                     <select name="status" class="input-artoria">
                         <option value="">All Status</option>
                         <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
@@ -54,7 +49,6 @@
             </form>
         </div>
 
-        <!-- Users Table -->
         <div class="glass rounded-2xl overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full">
@@ -168,8 +162,7 @@
                     </tbody>
                 </table>
             </div>
-
-            <!-- Pagination -->
+            
             @if($users->hasPages())
                 <div class="px-6 py-4 border-t border-white/10">
                     {{ $users->links() }}

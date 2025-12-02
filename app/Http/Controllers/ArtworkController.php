@@ -25,13 +25,17 @@ class ArtworkController extends Controller
         }
 
         if ($request->filled('search')) {
-            $query->search($request->search);
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
         }
 
         $sort = $request->get('sort', 'latest');
         switch ($sort) {
             case 'popular':
-                $query->popular();
+                $query->withCount('likes')->orderBy('likes_count', 'desc');
                 break;
             case 'views':
                 $query->orderBy('views_count', 'desc');
@@ -51,16 +55,17 @@ class ArtworkController extends Controller
      */
     public function show(Artwork $artwork)
     {
-        $artwork->incrementViews();
-
+        $artwork->increment('views_count');
+        
         $artwork->load(['user', 'category', 'tags', 'comments.user', 'challenges']);
 
         $hasLiked = false;
         $hasFavorited = false;
 
         if (auth()->check()) {
-            $hasLiked = auth()->user()->hasLiked($artwork);
-            $hasFavorited = auth()->user()->hasFavorited($artwork);
+            $user = auth()->user();
+            $hasLiked = $user->likes()->where('artwork_id', $artwork->id)->exists();
+            $hasFavorited = $user->favorites()->where('artwork_id', $artwork->id)->exists();
         }
 
         $relatedArtworks = Artwork::with(['user', 'category'])
@@ -71,6 +76,7 @@ class ArtworkController extends Controller
                         $q->whereIn('tags.id', $artwork->tags->pluck('id'));
                     });
             })
+            ->latest()
             ->limit(6)
             ->get();
 
@@ -85,15 +91,27 @@ class ArtworkController extends Controller
     /**
      * Show the form for creating a new artwork
      */
-    public function create()
-    {
+public function create()
+{
+    \Log::info('ArtworkController@create method reached', [
+        'user_id' => auth()->id(),
+        'user_status' => auth()->user()->status ?? 'none',
+        'user_role' => auth()->user()->role ?? 'none',
+    ]);
+    
+    try {
         $this->authorize('create', Artwork::class);
-
-        $categories = Category::all();
-        $popularTags = Tag::popular(30)->get();
-
-        return view('artworks.create', compact('categories', 'popularTags'));
+        \Log::info('Authorization passed');
+    } catch (\Exception $e) {
+        \Log::error('Authorization failed', ['error' => $e->getMessage()]);
+        throw $e;
     }
+
+    $categories = Category::all();
+    $popularTags = Tag::limit(30)->get();
+
+    return view('artworks.create', compact('categories', 'popularTags'));
+}
 
     /**
      * Store a newly created artwork
@@ -106,7 +124,7 @@ class ArtworkController extends Controller
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:2000'],
             'category_id' => ['required', 'exists:categories,id'],
-            'image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:5120'], // 5MB
+            'image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:5120'],
             'tags' => ['nullable', 'string', 'max:500'],
         ]);
 
@@ -122,7 +140,10 @@ class ArtworkController extends Controller
 
         if ($request->filled('tags')) {
             $tagNames = array_map('trim', explode(',', $request->tags));
-            $artwork->syncTags($tagNames);
+            foreach ($tagNames as $tagName) {
+                $tag = Tag::firstOrCreate(['name' => $tagName]);
+                $artwork->tags()->attach($tag->id);
+            }
         }
 
         return redirect()->route('artworks.show', $artwork)
@@ -137,7 +158,7 @@ class ArtworkController extends Controller
         $this->authorize('update', $artwork);
 
         $categories = Category::all();
-        $popularTags = Tag::popular(30)->get();
+        $popularTags = Tag::limit(30)->get();
         $artwork->load('tags');
 
         return view('artworks.edit', compact('artwork', 'categories', 'popularTags'));
@@ -158,24 +179,35 @@ class ArtworkController extends Controller
             'tags' => ['nullable', 'string', 'max:500'],
         ]);
 
-        if ($request->hasFile('image')) {
-            Storage::disk('public')->delete($artwork->image_path);
-
-            $validated['image_path'] = $request->file('image')->store('artworks', 'public');
-        }
-
-        $artwork->update([
+        $updateData = [
             'title' => $validated['title'],
             'description' => $validated['description'],
             'category_id' => $validated['category_id'],
-            'image_path' => $validated['image_path'] ?? $artwork->image_path,
-        ]);
+        ];
 
+        if ($request->hasFile('image')) {
+            // Delete old image
+            if ($artwork->image_path && Storage::disk('public')->exists($artwork->image_path)) {
+                Storage::disk('public')->delete($artwork->image_path);
+            }
+            
+            // Store new image
+            $updateData['image_path'] = $request->file('image')->store('artworks', 'public');
+        }
+
+        $artwork->update($updateData);
+
+        // Update tags
         if ($request->filled('tags')) {
             $tagNames = array_map('trim', explode(',', $request->tags));
-            $artwork->syncTags($tagNames);
+            $tagIds = [];
+            foreach ($tagNames as $tagName) {
+                $tag = Tag::firstOrCreate(['name' => $tagName]);
+                $tagIds[] = $tag->id;
+            }
+            $artwork->tags()->sync($tagIds);
         } else {
-            $artwork->syncTags([]);
+            $artwork->tags()->detach();
         }
 
         return redirect()->route('artworks.show', $artwork)
@@ -189,7 +221,10 @@ class ArtworkController extends Controller
     {
         $this->authorize('delete', $artwork);
 
-        Storage::disk('public')->delete($artwork->image_path);
+        // Delete image file
+        if ($artwork->image_path && Storage::disk('public')->exists($artwork->image_path)) {
+            Storage::disk('public')->delete($artwork->image_path);
+        }
 
         $artwork->delete();
 
@@ -248,7 +283,8 @@ class ArtworkController extends Controller
         }
 
         $artworks = Artwork::with(['user', 'category', 'tags'])
-            ->search($query)
+            ->where('title', 'like', "%{$query}%")
+            ->orWhere('description', 'like', "%{$query}%")
             ->latest()
             ->paginate(24);
 
@@ -261,10 +297,41 @@ class ArtworkController extends Controller
     public function stats(Artwork $artwork)
     {
         return response()->json([
-            'likes_count' => $artwork->likes_count,
+            'likes_count' => $artwork->likes()->count(),
             'views_count' => $artwork->views_count,
             'comments_count' => $artwork->comments()->count(),
             'favorites_count' => $artwork->favorites()->count(),
         ]);
+    }
+
+    /**
+     * Admin: List all artworks
+     */
+    public function adminIndex()
+    {
+        $artworks = Artwork::with(['user', 'category'])
+            ->withCount(['likes', 'comments', 'favorites'])
+            ->latest()
+            ->paginate(20);
+        
+        return view('admin.artworks.index', compact('artworks'));
+    }
+
+    /**
+     * Admin: Permanently delete artwork
+     */
+    public function forceDelete(Artwork $artwork)
+    {
+        $this->authorize('forceDelete', $artwork);
+        
+        // Delete image
+        if ($artwork->image_path && Storage::disk('public')->exists($artwork->image_path)) {
+            Storage::disk('public')->delete($artwork->image_path);
+        }
+        
+        // Force delete
+        $artwork->forceDelete();
+        
+        return back()->with('success', 'Artwork permanently deleted.');
     }
 }

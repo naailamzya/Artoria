@@ -4,31 +4,33 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Log;
 
 class CheckRole
 {
-    public function handle(Request $request, Closure $next, string ...$roles): Response
+    public function handle(Request $request, Closure $next, ...$roles)
     {
-        if (!$request->user()) {
-            return redirect()->route('login')
-                ->with('error', 'Please login to continue.');
+        $user = $request->user();
+        
+        if (!$user) {
+            return redirect()->route('login');
         }
 
-        // ✅ TAMBAHAN: Cek curator pending tidak bisa akses member routes
-        if ($request->user()->role === 'curator' && $request->user()->status === 'pending') {
-            // Jika curator pending coba akses member routes, redirect ke pending page
-            if (in_array('member', $roles) || in_array('curator', $roles)) {
-                return redirect()->route('curator.pending')
-                    ->with('warning', 'Please wait for your curator application to be approved.');
-            }
+        Log::info('CheckRole middleware triggered', [
+            'user_id' => $user->id,
+            'user_role' => $user->role,
+            'required_roles' => $roles,
+            'current_url' => $request->fullUrl(),
+        ]);
+        
+        if (!in_array($user->role, $roles)) {
+            Log::warning('Role check failed', [
+                'user_role' => $user->role,
+                'required' => $roles,
+            ]);
+            abort(403, 'You do not have the required role to access this page.');
         }
-
-        // Cek role
-        if (!in_array($request->user()->role, $roles)) {
-            abort(403, 'Unauthorized access. You do not have permission to access this resource.');
-        }
-
+        
         return $next($request);
     }
 }
